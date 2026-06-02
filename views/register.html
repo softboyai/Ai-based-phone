@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - KT Phones</title>
+    <!-- Google Fonts - Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body data-page="register">
+
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="logo">
+            <h1>KT <span>Phones</span></h1>
+        </div>
+        <button class="menu-toggle">☰</button>
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/recommend">Get Recommendation</a>
+            <a href="/login" id="nav-login">Login</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="form-container">
+            <h2>Create Account</h2>
+            
+            <!-- Message Area -->
+            <div id="message" class="alert" style="display:none;"></div>
+
+            <!-- Register Form -->
+            <form id="register-form">
+                <div class="form-group">
+                    <label for="fullName">Full Name</label>
+                    <input type="text" id="fullName" name="fullName" placeholder="Enter your full name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" placeholder="Enter your email" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Create a strong password" required minlength="8">
+                    <small style="color:#666; font-size:0.75rem; display:block; margin-top:5px;">
+                        Min 8 characters: uppercase + lowercase + number + special character (!@#$%^&*)
+                    </small>
+                    <!-- Password Strength Bar -->
+                    <div style="display:flex; gap:4px; margin-top:8px;">
+                        <div id="str-1" style="flex:1; height:4px; background:#e0e0e0; border-radius:2px;"></div>
+                        <div id="str-2" style="flex:1; height:4px; background:#e0e0e0; border-radius:2px;"></div>
+                        <div id="str-3" style="flex:1; height:4px; background:#e0e0e0; border-radius:2px;"></div>
+                        <div id="str-4" style="flex:1; height:4px; background:#e0e0e0; border-radius:2px;"></div>
+                    </div>
+                    <small id="str-text" style="color:#666; font-size:0.72rem;"></small>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm Password</label>
+                    <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm your password" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width:100%;">Register</button>
+            </form>
+
+            <!-- Link to Login -->
+            <p class="form-link">
+                Already have an account? <a href="/login">Login here</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2026 KT Phones - AI-Based Mobile Phone Recommendation System</p>
+    </footer>
+
+    <!-- Main JavaScript -->
+    <script src="/js/main.js"></script>
+    <script>
+        // Password strength indicator for register page
+        document.getElementById('password').addEventListener('input', function() {
+            const pwd = this.value;
+            let strength = 0;
+            if (pwd.length >= 8) strength++;
+            if (/[A-Z]/.test(pwd) && /[a-z]/.test(pwd)) strength++;
+            if (/[0-9]/.test(pwd)) strength++;
+            if (/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pwd)) strength++;
+            const colors = ['#c62828', '#ff6f00', '#f9a825', '#2e7d32'];
+            const labels = ['Weak', 'Fair', 'Good', 'Strong'];
+            for (let i = 1; i <= 4; i++) {
+                document.getElementById('str-' + i).style.background = i <= strength ? colors[strength-1] : '#e0e0e0';
+            }
+            document.getElementById('str-text').textContent = pwd.length > 0 ? 'Strength: ' + labels[strength-1] : '';
+            document.getElementById('str-text').style.color = strength > 0 ? colors[strength-1] : '#666';
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KT Phones - AI-Based Mobile Phone Recommendation System</title>
+    <!-- Google Fonts - Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body data-page="home">
+
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="logo">
+            <h1>KT <span>Phones</span></h1>
+        </div>
+        <button class="menu-toggle">☰</button>
+        <div class="nav-links">
+            <a href="/" class="active">Home</a>
+            <a href="/recommend">AI Recommendation</a>
+            <a href="/login" id="nav-login">Login</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Hero Section with AI Branding -->
+        <section class="hero">
+            <h2>🤖 AI-Powered Phone Recommendations</h2>
+            <p>Our intelligent recommendation engine analyzes your budget, usage preferences, and desired features to find the perfect mobile phone for you using advanced scoring algorithms.</p>
+            <div class="hero-buttons">
+                <a href="/recommend" class="btn btn-primary">🔍 Get AI Recommendation</a>
+                <a href="#phones-section" class="btn btn-secondary" style="color:#fff; border-color:#fff;">📱 Browse All Phones</a>
+            </div>
+        </section>
+
+        <!-- AI Features Section -->
+        <section style="margin: 40px 0;">
+            <h2 style="color:#1a237e; text-align:center; margin-bottom:25px; font-size:1.5rem;">🧠 How Our AI Works</h2>
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:20px;">
+                <div style="background:#fff; padding:25px; border-radius:12px; text-align:center; box-shadow:0 3px 10px rgba(0,0,0,0.08);">
+                    <div style="font-size:2rem; margin-bottom:10px;">💰</div>
+                    <h3 style="color:#1a237e; font-size:1rem; margin-bottom:8px;">Budget Analysis</h3>
+                    <p style="color:#666; font-size:0.85rem;">AI matches phones within your budget range for maximum value</p>
+                </div>
+                <div style="background:#fff; padding:25px; border-radius:12px; text-align:center; box-shadow:0 3px 10px rgba(0,0,0,0.08);">
+                    <div style="font-size:2rem; margin-bottom:10px;">📊</div>
+                    <h3 style="color:#1a237e; font-size:1rem; margin-bottom:8px;">Smart Scoring</h3>
+                    <p style="color:#666; font-size:0.85rem;">Each phone is scored out of 100 based on your preferences</p>
+                </div>
+                <div style="background:#fff; padding:25px; border-radius:12px; text-align:center; box-shadow:0 3px 10px rgba(0,0,0,0.08);">
+                    <div style="font-size:2rem; margin-bottom:10px;">🎯</div>
+                    <h3 style="color:#1a237e; font-size:1rem; margin-bottom:8px;">Usage Matching</h3>
+                    <p style="color:#666; font-size:0.85rem;">AI considers gaming, photography, business, and everyday needs</p>
+                </div>
+                <div style="background:#fff; padding:25px; border-radius:12px; text-align:center; box-shadow:0 3px 10px rgba(0,0,0,0.08);">
+                    <div style="font-size:2rem; margin-bottom:10px;">⚡</div>
+                    <h3 style="color:#1a237e; font-size:1rem; margin-bottom:8px;">Feature Detection</h3>
+                    <p style="color:#666; font-size:0.85rem;">Evaluates battery, camera, RAM, and storage against your needs</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Message Area -->
+        <div id="message" class="alert" style="display:none;"></div>
+
+        <!-- Featured Phones Section -->
+        <section id="featured-section" style="margin-bottom:40px;">
+            <h2 style="color:#1a237e; margin-bottom:10px; font-size:1.5rem;">⭐ Featured Phones</h2>
+            <p style="color:#666; margin-bottom:20px;">Our top picks and best sellers handpicked for you.</p>
+            <div id="featured-grid" class="phone-grid">
+                <div class="loading">
+                    <div class="spinner"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- All Phones Section -->
+        <section id="phones-section">
+            <h2 style="color:#1a237e; margin-bottom:10px; font-size:1.5rem;">📱 All Phones</h2>
+            <p style="color:#666; margin-bottom:20px;">Browse our complete collection or use the AI recommendation to find your perfect match.</p>
+            <div id="phone-grid" class="phone-grid">
+                <div class="loading">
+                    <div class="spinner"></div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2026 KT Phones - AI-Based Mobile Phone Recommendation Management Information System</p>
+    </footer>
+
+    <!-- Main JavaScript -->
+    <script src="/js/main.js"></script>
+</body>
+</html>

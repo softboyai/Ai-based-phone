@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recommendations - KT Phones</title>
+    <!-- Google Fonts - Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body data-page="results">
+
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="logo">
+            <h1>KT <span>Phones</span></h1>
+        </div>
+        <button class="menu-toggle">☰</button>
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/recommend">Get Recommendation</a>
+            <a href="/login" id="nav-login">Login</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Results Header -->
+        <div class="results-header">
+            <h2>🤖 AI Recommendation Results</h2>
+            <p>Based on our AI scoring algorithm, here are your top phone matches:</p>
+        </div>
+
+        <!-- Message Area -->
+        <div id="message" class="alert" style="display:none;"></div>
+
+        <!-- Results Grid - Populated by JavaScript -->
+        <div id="results-grid" class="results-grid">
+            <div class="loading">
+                <div class="spinner"></div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="results-actions">
+            <a href="/recommend" class="btn btn-primary">🔄 Try Again</a>
+            <a href="/" class="btn btn-secondary">🏠 Back to Home</a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2026 KT Phones - AI-Based Mobile Phone Recommendation System</p>
+    </footer>
+
+    <!-- Main JavaScript -->
+    <script src="/js/main.js"></script>
+</body>
+</html>

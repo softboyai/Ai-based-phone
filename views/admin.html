@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - KT Phones MIS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Poppins',sans-serif; background:#f0f2f5; }
+        .admin-wrap { display:flex; min-height:100vh; }
+        /* Sidebar */
+        .sidebar { width:260px; background:linear-gradient(180deg,#1a237e 0%,#0d1452 100%); position:fixed; top:0; left:0; height:100vh; z-index:100; display:flex; flex-direction:column; }
+        .sidebar-brand { padding:30px 20px 20px; text-align:center; border-bottom:1px solid rgba(255,255,255,0.08); }
+        .sidebar-brand h2 { color:#ff6f00; font-size:1.3rem; }
+        .sidebar-brand small { color:rgba(255,255,255,0.6); font-size:0.7rem; }
+        .sidebar-menu { flex:1; padding:20px 0; }
+        .sidebar-menu a { display:flex; align-items:center; gap:12px; padding:13px 25px; color:rgba(255,255,255,0.8); font-size:0.88rem; transition:all 0.3s; border-left:3px solid transparent; cursor:pointer; text-decoration:none; }
+        .sidebar-menu a:hover { background:rgba(255,255,255,0.08); color:#fff; }
+        .sidebar-menu a.active { background:rgba(255,255,255,0.12); color:#fff; border-left-color:#ff6f00; }
+        .sidebar-bottom { padding:15px 20px; border-top:1px solid rgba(255,255,255,0.08); }
+        .sidebar-bottom a { color:#ff6f00; font-size:0.82rem; text-decoration:none; }
+        /* Main */
+        .main { margin-left:260px; flex:1; padding:25px 30px; min-height:100vh; }
+        .topbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:25px; }
+        .topbar h1 { font-size:1.4rem; color:#1a237e; }
+        .topbar .badge { background:#1a237e; color:#fff; padding:5px 14px; border-radius:20px; font-size:0.75rem; }
+        /* Stats */
+        .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:18px; margin-bottom:25px; }
+        .stat-box { background:#fff; padding:20px; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.05); border-left:4px solid #1a237e; }
+        .stat-box.s2 { border-left-color:#ff6f00; }
+        .stat-box.s3 { border-left-color:#2e7d32; }
+        .stat-box.s4 { border-left-color:#c62828; }
+        .stat-box .val { font-size:2rem; font-weight:700; color:#1a237e; }
+        .stat-box .lbl { font-size:0.78rem; color:#888; margin-top:2px; }
+        /* Panels */
+        .panel { display:none; }
+        .panel.show { display:block; }
+        .card { background:#fff; border-radius:10px; padding:22px; box-shadow:0 2px 6px rgba(0,0,0,0.05); margin-bottom:20px; }
+        .card h3 { color:#1a237e; font-size:1.05rem; margin-bottom:15px; padding-bottom:10px; border-bottom:1px solid #f0f0f0; }
+        /* Table */
+        .dtable { width:100%; border-collapse:collapse; font-size:0.82rem; }
+        .dtable th { background:#f8f9fa; padding:11px 12px; text-align:left; font-weight:600; color:#444; border-bottom:2px solid #e8e8e8; }
+        .dtable td { padding:9px 12px; border-bottom:1px solid #f5f5f5; vertical-align:middle; }
+        .dtable tr:hover { background:#fafbff; }
+        .dtable img { width:42px; height:42px; border-radius:6px; object-fit:cover; background:#f0f0f0; }
+        .abtn { padding:4px 10px; border:none; border-radius:4px; font-size:0.75rem; cursor:pointer; font-family:'Poppins',sans-serif; font-weight:500; margin-right:4px; }
+        .abtn-edit { background:#e3f2fd; color:#1565c0; }
+        .abtn-del { background:#ffebee; color:#c62828; }
+        .abtn-edit:hover { background:#bbdefb; }
+        .abtn-del:hover { background:#ffcdd2; }
+        /* Form */
+        .fgrid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+        .fgrid .fw { grid-column:span 2; }
+        .fgrid label { display:block; font-size:0.8rem; font-weight:500; color:#444; margin-bottom:4px; }
+        .fgrid input,.fgrid select,.fgrid textarea { width:100%; padding:9px 11px; border:1px solid #ddd; border-radius:7px; font-size:0.85rem; font-family:'Poppins',sans-serif; }
+        .fgrid input:focus,.fgrid select:focus,.fgrid textarea:focus { outline:none; border-color:#1a237e; }
+        .fgrid textarea { min-height:65px; resize:vertical; }
+        .chks { display:flex; flex-wrap:wrap; gap:8px; }
+        .chks label { display:flex; align-items:center; gap:4px; font-weight:400; font-size:0.8rem; padding:5px 10px; border:1px solid #e0e0e0; border-radius:5px; cursor:pointer; }
+        .chks label:hover { border-color:#1a237e; }
+        .btn-sub { background:#1a237e; color:#fff; border:none; padding:11px 25px; border-radius:8px; font-size:0.9rem; cursor:pointer; font-family:'Poppins',sans-serif; font-weight:600; margin-top:10px; }
+        .btn-sub:hover { background:#0d1452; }
+        .btn-orange { background:#ff6f00; }
+        .btn-orange:hover { background:#e65100; }
+        /* Alert */
+        .msg { padding:10px 15px; border-radius:7px; margin-bottom:15px; font-size:0.85rem; display:none; }
+        .msg-ok { background:#e8f5e9; color:#2e7d32; border:1px solid #a5d6a7; }
+        .msg-err { background:#ffebee; color:#c62828; border:1px solid #ef9a9a; }
+        /* Chart */
+        .chart-box { height:180px; background:linear-gradient(135deg,#f8f9ff,#eef0ff); border-radius:8px; display:flex; align-items:flex-end; padding:15px 10px 30px; gap:6px; }
+        .bar { flex:1; border-radius:4px 4px 0 0; position:relative; min-height:10px; }
+        .bar-lbl { position:absolute; bottom:-22px; left:50%; transform:translateX(-50%); font-size:0.6rem; color:#666; white-space:nowrap; }
+        /* Modal */
+        .modal-bg { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:200; justify-content:center; align-items:center; }
+        .modal-bg.open { display:flex; }
+        .modal-box { background:#fff; border-radius:12px; padding:25px; max-width:600px; width:90%; max-height:85vh; overflow-y:auto; }
+        .modal-box h3 { color:#1a237e; margin-bottom:15px; }
+        .close-x { float:right; background:none; border:none; font-size:1.4rem; cursor:pointer; color:#666; }
+        .tbl-wrap { overflow-x:auto; }
+        /* Report print btn */
+        .rpt-btn { background:#c62828; color:#fff; border:none; padding:10px 20px; border-radius:8px; font-size:0.85rem; cursor:pointer; font-family:'Poppins',sans-serif; font-weight:500; }
+        .rpt-btn:hover { background:#b71c1c; }
+        @media(max-width:900px) {
+            .sidebar { display:none; }
+            .main { margin-left:0; padding:15px; }
+            .stats { grid-template-columns:repeat(2,1fr); }
+            .fgrid { grid-template-columns:1fr; }
+            .fgrid .fw { grid-column:span 1; }
+        }
+    </style>
+</head>
+<body>
+<div class="admin-wrap">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <h2>KT Phones</h2>
+            <small>Admin Management Information System</small>
+        </div>
+        <nav class="sidebar-menu">
+            <a class="active" onclick="switchPanel('dashboard',this)">📊 Dashboard</a>
+            <a onclick="switchPanel('phones',this)">📱 Manage Phones</a>
+            <a onclick="switchPanel('addphone',this)">➕ Add New Phone</a>
+            <a onclick="switchPanel('users',this)">👥 Users</a>
+            <a onclick="switchPanel('recs',this)">🤖 AI Recommendations</a>
+            <a onclick="switchPanel('reports',this)">📈 Reports</a>
+        </nav>
+        <div class="sidebar-bottom">
+            <a href="/">← Back to Website</a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main">
+        <div class="topbar">
+            <h1 id="page-title">📊 Dashboard</h1>
+            <span class="badge">🔒 Administrator</span>
+        </div>
+        <div id="admin-msg" class="msg"></div>
+
+        <!-- PANEL: Dashboard -->
+        <div id="p-dashboard" class="panel show">
+            <div class="stats">
+                <div class="stat-box"><div class="val" id="s-phones">0</div><div class="lbl">Total Phones</div></div>
+                <div class="stat-box s2"><div class="val" id="s-recs">0</div><div class="lbl">AI Recommendations</div></div>
+                <div class="stat-box s3"><div class="val" id="s-users">0</div><div class="lbl">Registered Users</div></div>
+                <div class="stat-box s4"><div class="val" id="s-featured">0</div><div class="lbl">Featured Phones</div></div>
+            </div>
+            <div class="card">
+                <h3>📊 Phones by Brand</h3>
+                <div id="chart-brand" class="chart-box"></div>
+            </div>
+        </div>
+
+        <!-- PANEL: Manage Phones -->
+        <div id="p-phones" class="panel">
+            <div class="card">
+                <h3>📱 Phone Inventory</h3>
+                <div class="tbl-wrap">
+                    <table class="dtable">
+                        <thead><tr><th>Photo</th><th>Name</th><th>Brand</th><th>Price</th><th>RAM</th><th>Storage</th><th>Battery</th><th>Camera</th><th>Stock</th><th>Actions</th></tr></thead>
+                        <tbody id="tb-phones"><tr><td colspan="10" style="text-align:center;padding:25px;">Loading...</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- PANEL: Add Phone -->
+        <div id="p-addphone" class="panel">
+            <div class="card">
+                <h3>➕ Add New Phone to Inventory</h3>
+                <form id="frm-add" enctype="multipart/form-data" class="fgrid">
+                    <div><label>Phone Name *</label><input type="text" name="name" required placeholder="e.g. Samsung Galaxy A15"></div>
+                    <div><label>Brand *</label>
+                        <select name="brand" required><option value="">Select</option><option>Samsung</option><option>iPhone</option><option>Tecno</option><option>Infinix</option><option>Nokia</option><option>Other</option></select>
+                    </div>
+                    <div><label>Price (RWF) *</label><input type="number" name="price" required min="0" placeholder="e.g. 150000"></div>
+                    <div><label>RAM (GB) *</label><input type="number" name="ram" required min="1" placeholder="e.g. 4"></div>
+                    <div><label>Storage (GB) *</label><input type="number" name="storage" required min="8" placeholder="e.g. 128"></div>
+                    <div><label>Battery (mAh) *</label><input type="number" name="battery" required min="1000" placeholder="e.g. 5000"></div>
+                    <div><label>Camera (MP) *</label><input type="number" name="camera" required min="2" placeholder="e.g. 48"></div>
+                    <div><label>Phone Photo *</label><input type="file" name="image" accept="image/jpeg,image/png,image/webp,image/gif"></div>
+                    <div class="fw">
+                        <label>Usage Type *</label>
+                        <div class="chks">
+                            <label><input type="checkbox" name="usageType" value="gaming"> Gaming</label>
+                            <label><input type="checkbox" name="usageType" value="photography"> Photography</label>
+                            <label><input type="checkbox" name="usageType" value="business"> Business</label>
+                            <label><input type="checkbox" name="usageType" value="everyday"> Everyday</label>
+                            <label><input type="checkbox" name="usageType" value="social media"> Social Media</label>
+                        </div>
+                    </div>
+                    <div class="fw"><label>Description</label><textarea name="description" placeholder="Brief phone description..."></textarea></div>
+                    <div class="fw"><button type="submit" class="btn-sub">📱 Add Phone</button></div>
+                </form>
+            </div>
+        </div>
+
+        <!-- PANEL: Users -->
+        <div id="p-users" class="panel">
+            <div class="card">
+                <h3>👥 All Registered Users</h3>
+                <div class="tbl-wrap">
+                    <table class="dtable">
+                        <thead><tr><th>Full Name</th><th>Email</th><th>Role</th><th>Registered</th></tr></thead>
+                        <tbody id="tb-users"><tr><td colspan="4" style="text-align:center;padding:25px;">Loading...</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- PANEL: AI Recommendations -->
+        <div id="p-recs" class="panel">
+            <div class="card">
+                <h3>🤖 AI Recommendation History</h3>
+                <div class="tbl-wrap">
+                    <table class="dtable">
+                        <thead><tr><th>User</th><th>Budget</th><th>Brand</th><th>Usage</th><th>Recommended</th><th>Date</th></tr></thead>
+                        <tbody id="tb-recs"><tr><td colspan="6" style="text-align:center;padding:25px;">Loading...</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- PANEL: Reports -->
+        <div id="p-reports" class="panel">
+            <div class="card">
+                <h3>📈 Generate PDF Reports (PDFKit)</h3>
+                <p style="font-size:0.85rem;color:#666;margin-bottom:15px;">Download professional PDF reports generated server-side using PDFKit.</p>
+                <div style="display:flex;gap:12px;flex-wrap:wrap;">
+                    <a href="/api/report/full" class="rpt-btn" style="text-decoration:none;">📄 Full System Report</a>
+                    <a href="/api/report/phones" class="rpt-btn" style="background:#1a237e;text-decoration:none;">📱 Phone Inventory Report</a>
+                    <a href="/api/report/recommendations" class="rpt-btn" style="background:#ff6f00;text-decoration:none;">🤖 Recommendations Report</a>
+                </div>
+            </div>
+            <div class="stats" style="margin-top:15px;">
+                <div class="stat-box"><div class="val" id="r-phones">0</div><div class="lbl">Total Phones</div></div>
+                <div class="stat-box s2"><div class="val" id="r-recs">0</div><div class="lbl">Recommendations</div></div>
+                <div class="stat-box s3"><div class="val" id="r-instock">0</div><div class="lbl">In Stock</div></div>
+                <div class="stat-box s4"><div class="val" id="r-outstock">0</div><div class="lbl">Out of Stock</div></div>
+            </div>
+            <div class="card" style="margin-top:15px;">
+                <h3>📊 Price Distribution</h3>
+                <div id="chart-price" class="chart-box"></div>
+            </div>
+            <div class="card">
+                <h3>📋 Summary Table</h3>
+                <table class="dtable">
+                    <thead><tr><th>Metric</th><th>Value</th></tr></thead>
+                    <tbody>
+                        <tr><td>Total Phones in System</td><td id="sm-phones">0</td></tr>
+                        <tr><td>Total Registered Users</td><td id="sm-users">0</td></tr>
+                        <tr><td>Total AI Recommendations Made</td><td id="sm-recs">0</td></tr>
+                        <tr><td>Featured Phones</td><td id="sm-featured">0</td></tr>
+                        <tr><td>Average Phone Price</td><td id="sm-avg">0 RWF</td></tr>
+                        <tr><td>Most Popular Brand</td><td id="sm-brand">-</td></tr>
+                        <tr><td>Phones In Stock</td><td id="sm-instock">0</td></tr>
+                        <tr><td>Phones Out of Stock</td><td id="sm-outstock">0</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Modal -->
+<div id="edit-modal" class="modal-bg">
+    <div class="modal-box">
+        <button class="close-x" onclick="closeModal()">&times;</button>
+        <h3>Edit Phone</h3>
+        <form id="frm-edit" enctype="multipart/form-data" class="fgrid">
+            <input type="hidden" id="ed-id">
+            <div><label>Name</label><input type="text" id="ed-name" name="name" required></div>
+            <div><label>Brand</label>
+                <select id="ed-brand" name="brand"><option>Samsung</option><option>iPhone</option><option>Tecno</option><option>Infinix</option><option>Nokia</option><option>Other</option></select>
+            </div>
+            <div><label>Price</label><input type="number" id="ed-price" name="price" required></div>
+            <div><label>RAM (GB)</label><input type="number" id="ed-ram" name="ram" required></div>
+            <div><label>Storage (GB)</label><input type="number" id="ed-storage" name="storage" required></div>
+            <div><label>Battery (mAh)</label><input type="number" id="ed-battery" name="battery" required></div>
+            <div><label>Camera (MP)</label><input type="number" id="ed-camera" name="camera" required></div>
+            <div><label>New Photo</label><input type="file" name="image" accept="image/*"></div>
+            <div class="fw"><label>Usage Type</label>
+                <div class="chks" id="ed-usage">
+                    <label><input type="checkbox" name="usageType" value="gaming"> Gaming</label>
+                    <label><input type="checkbox" name="usageType" value="photography"> Photography</label>
+                    <label><input type="checkbox" name="usageType" value="business"> Business</label>
+                    <label><input type="checkbox" name="usageType" value="everyday"> Everyday</label>
+                    <label><input type="checkbox" name="usageType" value="social media"> Social Media</label>
+                </div>
+            </div>
+            <div class="fw"><label>Description</label><textarea id="ed-desc" name="description"></textarea></div>
+            <div class="fw"><label><input type="checkbox" id="ed-stock" checked> In Stock</label></div>
+            <div class="fw"><button type="submit" class="btn-sub btn-orange">💾 Save Changes</button></div>
+        </form>
+    </div>
+</div>
+
+<script>
+// ============================================================
+// ADMIN PANEL - COMPLETE JAVASCRIPT
+// ============================================================
+const API = '/api';
+let allPhones = [];
+let allUsers = [];
+let allRecs = [];
+
+// Check admin access on load
+window.addEventListener('DOMContentLoaded', async () => {
+    const res = await fetch(API + '/auth/session');
+    const data = await res.json();
+    if (!data.loggedIn || data.user.role !== 'admin') {
+        window.location.href = '/login';
+        return;
+    }
+    loadAll();
+    setupForms();
+});
+
+// ============================================================
+// PANEL SWITCHING
+// ============================================================
+function switchPanel(name, el) {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('show'));
+    document.getElementById('p-' + name).classList.add('show');
+    document.querySelectorAll('.sidebar-menu a').forEach(a => a.classList.remove('active'));
+    if (el) el.classList.add('active');
+    const titles = { dashboard:'📊 Dashboard', phones:'📱 Manage Phones', addphone:'➕ Add New Phone', users:'👥 Users', recs:'🤖 AI Recommendations', reports:'📈 Reports' };
+    document.getElementById('page-title').textContent = titles[name] || '';
+}
+
+// ============================================================
+// LOAD ALL DATA
+// ============================================================
+async function loadAll() {
+    try {
+        // Load phones
+        const pRes = await fetch(API + '/phones');
+        allPhones = await pRes.json();
+
+        // Load users
+        const uRes = await fetch(API + '/auth/users');
+        if (uRes.ok) allUsers = await uRes.json();
+
+        // Load recommendations
+        const rRes = await fetch(API + '/recommend/all');
+        if (rRes.ok) allRecs = await rRes.json();
+
+        updateStats();
+        renderPhones();
+        renderUsers();
+        renderRecs();
+        renderCharts();
+        updateReports();
+    } catch(e) { console.error(e); }
+}
+
+function updateStats() {
+    document.getElementById('s-phones').textContent = allPhones.length;
+    document.getElementById('s-recs').textContent = allRecs.length;
+    document.getElementById('s-users').textContent = allUsers.length;
+    document.getElementById('s-featured').textContent = allPhones.filter(p => p.featured).length;
+}
+
+// ============================================================
+// RENDER PHONES TABLE
+// ============================================================
+function renderPhones() {
+    const tb = document.getElementById('tb-phones');
+    if (allPhones.length === 0) { tb.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:20px;">No phones found</td></tr>'; return; }
+    tb.innerHTML = allPhones.map(p => `<tr>
+        <td><img src="/images/${p.image}" onerror="this.src='/images/default-phone.svg'" alt="${p.name}"></td>
+        <td><strong>${p.name}</strong></td>
+        <td>${p.brand}</td>
+        <td>${fmtPrice(p.price)} RWF</td>
+        <td>${p.ram}GB</td>
+        <td>${p.storage}GB</td>
+        <td>${p.battery}mAh</td>
+        <td>${p.camera}MP</td>
+        <td>${p.inStock ? '<span style="color:#2e7d32">✅</span>' : '<span style="color:#c62828">❌</span>'}</td>
+        <td><button class="abtn abtn-edit" onclick="openEdit('${p._id}')">Edit</button><button class="abtn abtn-del" onclick="delPhone('${p._id}')">Delete</button></td>
+    </tr>`).join('');
+}
+
+// ============================================================
+// RENDER USERS TABLE
+// ============================================================
+function renderUsers() {
+    const tb = document.getElementById('tb-users');
+    if (allUsers.length === 0) { tb.innerHTML = '<tr><td colspan="4" style="text-align:center;">No users</td></tr>'; return; }
+    tb.innerHTML = allUsers.map(u => `<tr>
+        <td>${u.fullName}</td>
+        <td>${u.email}</td>
+        <td><span style="background:${u.role==='admin'?'#ff6f00':'#1a237e'};color:#fff;padding:2px 10px;border-radius:10px;font-size:0.72rem;">${u.role}</span></td>
+        <td>${new Date(u.createdAt).toLocaleDateString()}</td>
+    </tr>`).join('');
+}
+
+// ============================================================
+// RENDER RECOMMENDATIONS TABLE
+// ============================================================
+function renderRecs() {
+    const tb = document.getElementById('tb-recs');
+    if (allRecs.length === 0) { tb.innerHTML = '<tr><td colspan="6" style="text-align:center;">No recommendations yet</td></tr>'; return; }
+    tb.innerHTML = allRecs.map(r => `<tr>
+        <td>${r.userId ? r.userId.fullName : 'Unknown'}</td>
+        <td>${r.preferences.budget}</td>
+        <td>${r.preferences.brand}</td>
+        <td>${(r.preferences.usage||[]).join(', ')}</td>
+        <td>${r.recommendedPhones.map(rp => rp.phone ? rp.phone.name : 'N/A').join(', ')}</td>
+        <td>${new Date(r.createdAt).toLocaleDateString()}</td>
+    </tr>`).join('');
+}
+
+// ============================================================
+// CHARTS
+// ============================================================
+function renderCharts() {
+    // Brand chart
+    const brands = {};
+    allPhones.forEach(p => { brands[p.brand] = (brands[p.brand]||0)+1; });
+    const maxB = Math.max(...Object.values(brands), 1);
+    const colors = ['#1a237e','#ff6f00','#2e7d32','#c62828','#6a1b9a','#00838f'];
+    document.getElementById('chart-brand').innerHTML = Object.entries(brands).map(([b,c],i) =>
+        `<div class="bar" style="height:${(c/maxB)*140}px;background:${colors[i%colors.length]};"><span class="bar-lbl">${b} (${c})</span></div>`
+    ).join('');
+
+    // Price chart
+    const ranges = {'<50K':0,'50-150K':0,'150-300K':0,'300-500K':0,'500K+':0};
+    allPhones.forEach(p => {
+        if(p.price<50000) ranges['<50K']++;
+        else if(p.price<150000) ranges['50-150K']++;
+        else if(p.price<300000) ranges['150-300K']++;
+        else if(p.price<500000) ranges['300-500K']++;
+        else ranges['500K+']++;
+    });
+    const maxP = Math.max(...Object.values(ranges), 1);
+    document.getElementById('chart-price').innerHTML = Object.entries(ranges).map(([r,c]) =>
+        `<div class="bar" style="height:${Math.max((c/maxP)*140,8)}px;background:#ff6f00;"><span class="bar-lbl">${r} (${c})</span></div>`
+    ).join('');
+}
+
+// ============================================================
+// REPORTS
+// ============================================================
+function updateReports() {
+    document.getElementById('r-phones').textContent = allPhones.length;
+    document.getElementById('r-recs').textContent = allRecs.length;
+    const inStock = allPhones.filter(p=>p.inStock).length;
+    document.getElementById('r-instock').textContent = inStock;
+    document.getElementById('r-outstock').textContent = allPhones.length - inStock;
+    document.getElementById('sm-phones').textContent = allPhones.length;
+    document.getElementById('sm-users').textContent = allUsers.length;
+    document.getElementById('sm-recs').textContent = allRecs.length;
+    document.getElementById('sm-featured').textContent = allPhones.filter(p=>p.featured).length;
+    document.getElementById('sm-instock').textContent = inStock;
+    document.getElementById('sm-outstock').textContent = allPhones.length - inStock;
+    if(allPhones.length>0) {
+        const avg = Math.round(allPhones.reduce((s,p)=>s+p.price,0)/allPhones.length);
+        document.getElementById('sm-avg').textContent = fmtPrice(avg) + ' RWF';
+    }
+    const brands={};
+    allPhones.forEach(p=>{brands[p.brand]=(brands[p.brand]||0)+1;});
+    const top = Object.entries(brands).sort((a,b)=>b[1]-a[1])[0];
+    if(top) document.getElementById('sm-brand').textContent = top[0]+' ('+top[1]+' phones)';
+}
+
+// ============================================================
+// ADD PHONE FORM
+// ============================================================
+function setupForms() {
+    document.getElementById('frm-add').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const form = e.target;
+        const formData = new FormData(form);
+
+        // Get usage checkboxes
+        const usages = [];
+        form.querySelectorAll('input[name="usageType"]:checked').forEach(cb => usages.push(cb.value));
+        formData.delete('usageType');
+        formData.append('usageType', usages.join(','));
+
+        try {
+            const res = await fetch(API + '/phones', { method:'POST', body: formData });
+            const data = await res.json();
+            if (res.ok) {
+                showMsg('Phone added successfully!', 'ok');
+                form.reset();
+                loadAll();
+            } else {
+                showMsg(data.message || 'Error adding phone', 'err');
+            }
+        } catch(err) { showMsg('Network error', 'err'); }
+    });
+
+    // Edit form
+    document.getElementById('frm-edit').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const id = document.getElementById('ed-id').value;
+        const form = e.target;
+        const formData = new FormData(form);
+
+        const usages = [];
+        form.querySelectorAll('input[name="usageType"]:checked').forEach(cb => usages.push(cb.value));
+        formData.delete('usageType');
+        formData.append('usageType', usages.join(','));
+        formData.append('inStock', document.getElementById('ed-stock').checked);
+
+        try {
+            const res = await fetch(API + '/phones/' + id, { method:'PUT', body: formData });
+            const data = await res.json();
+            if (res.ok) {
+                showMsg('Phone updated!', 'ok');
+                closeModal();
+                loadAll();
+            } else {
+                showMsg(data.message || 'Error updating', 'err');
+            }
+        } catch(err) { showMsg('Network error', 'err'); }
+    });
+}
+
+// ============================================================
+// EDIT & DELETE
+// ============================================================
+async function openEdit(id) {
+    const phone = allPhones.find(p => p._id === id);
+    if (!phone) return;
+    document.getElementById('ed-id').value = phone._id;
+    document.getElementById('ed-name').value = phone.name;
+    document.getElementById('ed-brand').value = phone.brand;
+    document.getElementById('ed-price').value = phone.price;
+    document.getElementById('ed-ram').value = phone.ram;
+    document.getElementById('ed-storage').value = phone.storage;
+    document.getElementById('ed-battery').value = phone.battery;
+    document.getElementById('ed-camera').value = phone.camera;
+    document.getElementById('ed-desc').value = phone.description || '';
+    document.getElementById('ed-stock').checked = phone.inStock;
+    // Set usage checkboxes
+    document.querySelectorAll('#ed-usage input[type="checkbox"]').forEach(cb => {
+        cb.checked = phone.usageType && phone.usageType.includes(cb.value);
+    });
+    document.getElementById('edit-modal').classList.add('open');
+}
+
+function closeModal() { document.getElementById('edit-modal').classList.remove('open'); }
+
+async function delPhone(id) {
+    if (!confirm('Delete this phone permanently?')) return;
+    try {
+        const res = await fetch(API + '/phones/' + id, { method:'DELETE' });
+        if (res.ok) { showMsg('Phone deleted', 'ok'); loadAll(); }
+        else { showMsg('Error deleting', 'err'); }
+    } catch(e) { showMsg('Network error', 'err'); }
+}
+
+// ============================================================
+// UTILITIES
+// ============================================================
+function fmtPrice(n) { return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+
+function showMsg(text, type) {
+    const el = document.getElementById('admin-msg');
+    el.textContent = text;
+    el.className = 'msg ' + (type==='ok' ? 'msg-ok' : 'msg-err');
+    el.style.display = 'block';
+    setTimeout(() => { el.style.display = 'none'; }, 4000);
+}
+</script>
+</body>
+</html>

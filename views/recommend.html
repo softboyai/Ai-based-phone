@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get Recommendation - KT Phones</title>
+    <!-- Google Fonts - Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body data-page="recommend">
+
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="logo">
+            <h1>KT <span>Phones</span></h1>
+        </div>
+        <button class="menu-toggle">☰</button>
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/recommend" class="active">AI Recommendation</a>
+            <a href="/login" id="nav-login">Login</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="recommend-form">
+            <h2>🤖 AI Phone Recommendation</h2>
+            <p class="subtitle">Tell us your preferences and our AI scoring algorithm will analyze all phones and recommend the best matches for you.</p>
+
+            <!-- Message Area -->
+            <div id="message" class="alert" style="display:none;"></div>
+
+            <!-- Recommendation Form -->
+            <form id="recommend-form">
+                <!-- Budget Range -->
+                <div class="form-group">
+                    <label for="budget">Budget Range (RWF)</label>
+                    <select id="budget" name="budget" required>
+                        <option value="">-- Select your budget --</option>
+                        <option value="under-50000">Under 50,000 RWF</option>
+                        <option value="50000-150000">50,000 - 150,000 RWF</option>
+                        <option value="150000-300000">150,000 - 300,000 RWF</option>
+                        <option value="above-300000">Above 300,000 RWF</option>
+                    </select>
+                </div>
+
+                <!-- Preferred Brand -->
+                <div class="form-group">
+                    <label for="brand">Preferred Brand</label>
+                    <select id="brand" name="brand" required>
+                        <option value="">-- Select preferred brand --</option>
+                        <option value="any">Any Brand</option>
+                        <option value="Samsung">Samsung</option>
+                        <option value="iPhone">iPhone</option>
+                        <option value="Tecno">Tecno</option>
+                        <option value="Infinix">Infinix</option>
+                        <option value="Nokia">Nokia</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+
+                <!-- Primary Usage -->
+                <div class="form-group">
+                    <label>Primary Usage (select all that apply)</label>
+                    <div class="checkbox-group">
+                        <label>
+                            <input type="checkbox" name="usage" value="gaming">
+                            Gaming
+                        </label>
+                        <label>
+                            <input type="checkbox" name="usage" value="photography">
+                            Photography
+                        </label>
+                        <label>
+                            <input type="checkbox" name="usage" value="business">
+                            Business
+                        </label>
+                        <label>
+                            <input type="checkbox" name="usage" value="everyday">
+                            Everyday Use
+                        </label>
+                        <label>
+                            <input type="checkbox" name="usage" value="social media">
+                            Social Media
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Important Features -->
+                <div class="form-group">
+                    <label>Important Features (select all that apply)</label>
+                    <div class="checkbox-group">
+                        <label>
+                            <input type="checkbox" name="features" value="long battery">
+                            Long Battery Life
+                        </label>
+                        <label>
+                            <input type="checkbox" name="features" value="high storage">
+                            High Storage
+                        </label>
+                        <label>
+                            <input type="checkbox" name="features" value="good camera">
+                            Good Camera
+                        </label>
+                        <label>
+                            <input type="checkbox" name="features" value="large ram">
+                            Large RAM
+                        </label>
+                        <label>
+                            <input type="checkbox" name="features" value="slim design">
+                            Slim Design
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="btn btn-primary" style="width:100%; margin-top:20px;">
+                    🔍 Find My Phone
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2024 KT Phones - AI-Based Mobile Phone Recommendation System</p>
+    </footer>
+
+    <!-- Main JavaScript -->
+    <script src="/js/main.js"></script>
+</body>
+</html>
