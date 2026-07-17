@@ -72,11 +72,17 @@ exports.register = async (req, res) => {
         }
 
         // Create new user (password will be hashed by the model pre-save hook)
+        // Only 'customer' and 'seller' are self-registerable; 'admin' must be set manually
+        const allowedRoles = ['customer', 'seller'];
+        const requestedRole = req.body.role && allowedRoles.includes(req.body.role)
+            ? req.body.role
+            : 'customer';
+
         const user = new User({
             fullName,
             email: email.toLowerCase(),
             password,
-            role: 'customer'
+            role: requestedRole
         });
 
         await user.save();

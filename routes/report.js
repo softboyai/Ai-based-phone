@@ -13,15 +13,9 @@ const PDFDocument = require('pdfkit');
 const Phone = require('../models/Phone');
 const User = require('../models/User');
 const Recommendation = require('../models/Recommendation');
+const { isAdmin } = require('../middleware/auth');
 
-// Middleware: Check if user is admin
-function isAdmin(req, res, next) {
-    if (req.session.userRole === 'admin') {
-        next();
-    } else {
-        res.status(403).json({ message: 'Access denied. Admin only.' });
-    }
-}
+// Inline isAdmin removed — using shared middleware above
 
 // ============================================================
 // HELPER: Draw table header
@@ -273,6 +267,7 @@ router.get('/full', isAdmin, async (req, res) => {
         doc.text(`• Featured Phones: ${featured}`);
         doc.text(`• Total Users: ${users.length}`);
         doc.text(`• Admin Users: ${users.filter(u => u.role === 'admin').length}`);
+        doc.text(`• Seller Users: ${users.filter(u => u.role === 'seller').length}`);
         doc.text(`• Customer Users: ${users.filter(u => u.role === 'customer').length}`);
         doc.text(`• Total AI Recommendations: ${recs.length}`);
         doc.text(`• Average Phone Price: ${fmtPrice(avgPrice)} RWF`);

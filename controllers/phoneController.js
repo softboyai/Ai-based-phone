@@ -9,6 +9,23 @@
 const Phone = require('../models/Phone');
 
 // ============================================================
+// GET PHONES ADDED BY THE CURRENT SELLER
+// ============================================================
+exports.getMyPhones = async (req, res) => {
+    try {
+        const query = req.session.userRole === 'admin'
+            ? {}  // admins see all
+            : { addedBy: req.session.userId };
+
+        const phones = await Phone.find(query).sort({ createdAt: -1 });
+        res.status(200).json(phones);
+    } catch (error) {
+        console.error('Error fetching seller phones:', error);
+        res.status(500).json({ message: 'Error fetching your listings' });
+    }
+};
+
+// ============================================================
 // GET ALL PHONES
 // ============================================================
 exports.getAllPhones = async (req, res) => {
@@ -52,7 +69,7 @@ exports.getPhoneById = async (req, res) => {
 };
 
 // ============================================================
-// ADD A NEW PHONE (Admin Only)
+// ADD A NEW PHONE (Admin or Seller)
 // ============================================================
 exports.addPhone = async (req, res) => {
     try {
@@ -69,7 +86,7 @@ exports.addPhone = async (req, res) => {
             parsedUsageType = usageType.split(',').map(type => type.trim());
         }
 
-        // Create new phone object
+        // Create new phone object; track who added it
         const phone = new Phone({
             name,
             brand,
@@ -81,10 +98,10 @@ exports.addPhone = async (req, res) => {
             usageType: parsedUsageType,
             inStock: inStock !== undefined ? inStock : true,
             image: req.file ? req.file.filename : 'default-phone.svg',
-            description: description || ''
+            description: description || '',
+            addedBy: req.session.userId || null
         });
 
-        // Save to database
         await phone.save();
 
         res.status(201).json({ message: 'Phone added successfully', phone });
@@ -95,10 +112,23 @@ exports.addPhone = async (req, res) => {
 };
 
 // ============================================================
-// UPDATE AN EXISTING PHONE (Admin Only)
+// UPDATE AN EXISTING PHONE (Admin or owner Seller)
 // ============================================================
 exports.updatePhone = async (req, res) => {
     try {
+        const phone = await Phone.findById(req.params.id);
+        if (!phone) {
+            return res.status(404).json({ message: 'Phone not found' });
+        }
+
+        // Sellers can only update phones they added
+        if (req.session.userRole === 'seller') {
+            const ownerId = phone.addedBy ? phone.addedBy.toString() : null;
+            if (ownerId !== req.session.userId.toString()) {
+                return res.status(403).json({ message: 'Access denied. You can only edit your own listings.' });
+            }
+        }
+
         const { name, brand, price, ram, storage, battery, camera, usageType, inStock, description } = req.body;
 
         // Build update object with provided fields
@@ -111,26 +141,21 @@ exports.updatePhone = async (req, res) => {
         if (battery) updateData.battery = Number(battery);
         if (camera) updateData.camera = Number(camera);
         if (usageType) {
-            updateData.usageType = typeof usageType === 'string' 
-                ? usageType.split(',').map(type => type.trim()) 
+            updateData.usageType = typeof usageType === 'string'
+                ? usageType.split(',').map(type => type.trim())
                 : usageType;
         }
         if (inStock !== undefined) updateData.inStock = inStock;
         if (description !== undefined) updateData.description = description;
         if (req.file) updateData.image = req.file.filename;
 
-        // Find and update the phone
-        const phone = await Phone.findByIdAndUpdate(
+        const updated = await Phone.findByIdAndUpdate(
             req.params.id,
             updateData,
             { new: true, runValidators: true }
         );
 
-        if (!phone) {
-            return res.status(404).json({ message: 'Phone not found' });
-        }
-
-        res.status(200).json({ message: 'Phone updated successfully', phone });
+        res.status(200).json({ message: 'Phone updated successfully', phone: updated });
     } catch (error) {
         console.error('Error updating phone:', error);
         res.status(500).json({ message: 'Error updating phone' });
@@ -138,16 +163,24 @@ exports.updatePhone = async (req, res) => {
 };
 
 // ============================================================
-// DELETE A PHONE (Admin Only)
+// DELETE A PHONE (Admin or owner Seller)
 // ============================================================
 exports.deletePhone = async (req, res) => {
     try {
-        const phone = await Phone.findByIdAndDelete(req.params.id);
-
+        const phone = await Phone.findById(req.params.id);
         if (!phone) {
             return res.status(404).json({ message: 'Phone not found' });
         }
 
+        // Sellers can only delete phones they added
+        if (req.session.userRole === 'seller') {
+            const ownerId = phone.addedBy ? phone.addedBy.toString() : null;
+            if (ownerId !== req.session.userId.toString()) {
+                return res.status(403).json({ message: 'Access denied. You can only delete your own listings.' });
+            }
+        }
+
+        await Phone.findByIdAndDelete(req.params.id);
         res.status(200).json({ message: 'Phone deleted successfully' });
     } catch (error) {
         console.error('Error deleting phone:', error);

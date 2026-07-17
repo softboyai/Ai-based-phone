@@ -1,266 +1,187 @@
 # KT Phones - System Diagrams
 
-## AI-Based Mobile Phone Recommendation Management Information System
-
 ---
 
-## 1. Context Diagram (Level 0 DFD)
-
-Shows the system as a single process and its interaction with external entities.
+## 1. Context Diagram
 
 ```mermaid
-graph TD
-    Customer([👤 Customer/Retail User])
-    Admin([🔒 Administrator])
-    System[🤖 KT Phones AI Recommendation System]
-    DB[(MongoDB Database)]
+graph LR
+    Customer([Customer])
+    Seller([Seller])
+    Admin([Administrator])
+    KTPhones[KT Phones AI Recommendation System]
+    MongoDB[(MongoDB Database)]
 
-    Customer -->|Register/Login| System
-    Customer -->|Submit Preferences| System
-    System -->|Top 3 Phone Recommendations| Customer
-    System -->|Browse Phones| Customer
+    Customer -->|Submit Preferences| KTPhones
+    KTPhones -->|Phone Recommendations| Customer
 
-    Admin -->|Login| System
-    Admin -->|Manage Phones CRUD| System
-    Admin -->|Generate Reports| System
-    System -->|PDF Reports| Admin
-    System -->|Users & Recommendations Data| Admin
+    Seller -->|Add / Edit / Delete Own Listings| KTPhones
 
-    System <-->|Store/Retrieve Data| DB
+    Admin -->|Monitor System, Manage All Phones| KTPhones
+    KTPhones -->|PDF Reports & System Stats| Admin
+
+    KTPhones <-->|Store and Retrieve Data| MongoDB
 ```
 
 ---
 
-## 2. Data Flow Diagram (DFD Level 1)
-
-Shows the main processes within the system and how data flows between them.
+## 2. Data Flow Diagram (Level 1)
 
 ```mermaid
 graph TD
-    %% External Entities
-    Customer([👤 Customer])
-    Admin([🔒 Admin])
+    Customer([Customer])
+    Seller([Seller])
+    Admin([Administrator])
 
-    %% Processes
-    P1[1.0 User Authentication<br/>Register/Login/Logout]
-    P2[2.0 AI Recommendation Engine<br/>Score & Rank Phones]
-    P3[3.0 Phone Management<br/>Add/Edit/Delete Phones]
-    P4[4.0 Report Generation<br/>Generate PDF Reports]
-    P5[5.0 Browse Phones<br/>View Phone Catalog]
+    Authentication[Authentication Process]
+    AIRecommendation[AI Recommendation Engine]
+    PhoneManagement[Phone Management]
+    ReportGeneration[Report Generation]
 
-    %% Data Stores
-    D1[(D1: Users)]
-    D2[(D2: Phones)]
-    D3[(D3: Recommendations)]
+    UsersStore[(Users Store)]
+    PhonesStore[(Phones Store)]
+    RecommendationsStore[(Recommendations Store)]
 
-    %% Customer flows
-    Customer -->|Registration Data| P1
-    Customer -->|Login Credentials| P1
-    Customer -->|Preferences: Budget, Brand, Usage, Features| P2
-    P2 -->|Top 3 Recommended Phones + Match %| Customer
-    P5 -->|Phone List with Specs| Customer
+    Customer -->|Login / Register as Customer| Authentication
+    Seller -->|Login / Register as Seller| Authentication
+    Admin -->|Login| Authentication
 
-    %% Admin flows
-    Admin -->|Login Credentials| P1
-    Admin -->|Phone Data + Photo| P3
-    Admin -->|Report Request| P4
-    P4 -->|PDF Report File| Admin
-    P3 -->|CRUD Confirmation| Admin
+    Customer -->|Budget, Brand, Usage, Features| AIRecommendation
+    AIRecommendation -->|Top 3 Phones with Match Percentage| Customer
 
-    %% Data Store flows
-    P1 <-->|Read/Write User Data| D1
-    P2 -->|Read In-Stock Phones| D2
-    P2 -->|Save Recommendation History| D3
-    P3 <-->|Read/Write Phone Data| D2
-    P4 -->|Read All Data| D1
-    P4 -->|Read All Data| D2
-    P4 -->|Read All Data| D3
-    P5 -->|Read Phones| D2
+    Seller -->|Phone Details and Photo| PhoneManagement
+    Admin -->|Oversight: Edit / Delete Any Phone| PhoneManagement
+    Admin -->|Report Request| ReportGeneration
+    ReportGeneration -->|PDF Report| Admin
+
+    Authentication <-->|Read and Write| UsersStore
+    AIRecommendation -->|Read Available Phones| PhonesStore
+    AIRecommendation -->|Save History| RecommendationsStore
+    PhoneManagement <-->|Add Edit Delete| PhonesStore
+    PhoneManagement -->|Track addedBy Seller| UsersStore
+    ReportGeneration -->|Read| UsersStore
+    ReportGeneration -->|Read| PhonesStore
+    ReportGeneration -->|Read| RecommendationsStore
 ```
 
 ---
 
 ## 3. Use Case Diagram
 
-Shows what each actor (Customer and Admin) can do in the system.
-
 ```mermaid
 graph LR
-    %% Actors
-    Customer([👤 Customer/Retail User])
-    Admin([🔒 Administrator])
+    Customer([Customer])
+    Seller([Seller])
+    Admin([Administrator])
 
-    %% System boundary
     subgraph KT Phones System
-        UC1[Register Account]
-        UC2[Login]
-        UC3[Logout]
-        UC4[Forgot Password]
-        UC5[Browse All Phones]
-        UC6[View Featured Phones]
-        UC7[Fill AI Recommendation Form]
-        UC8[View Top 3 Recommendations]
-        UC9[View Recommendation History]
+        Register[Register Account]
+        Login[Login]
+        ResetPassword[Reset Password]
+        BrowsePhones[Browse Phones]
+        GetRecommendation[Get AI Recommendation]
+        ViewResults[View Recommendation Results]
 
-        UC10[Manage Phones - Add]
-        UC11[Manage Phones - Edit]
-        UC12[Manage Phones - Delete]
-        UC13[Upload Phone Photo]
-        UC14[View All Users]
-        UC15[View All Recommendations]
-        UC16[View Dashboard Statistics]
-        UC17[Generate PDF Report - Full]
-        UC18[Generate PDF Report - Phones]
-        UC19[Generate PDF Report - Recommendations]
+        AddPhone[Add Phone Listing]
+        EditOwnPhone[Edit Own Listing]
+        DeleteOwnPhone[Delete Own Listing]
+        ViewOwnListings[View My Listings]
+
+        ManageAllPhones[Override Edit / Delete Any Phone]
+        ViewAllUsers[View All Users and Sellers]
+        ViewSellers[Monitor Seller Activity]
+        ViewRecommendations[View Recommendation History]
+        GenerateReport[Generate PDF Report]
     end
 
-    %% Customer relationships
-    Customer --- UC1
-    Customer --- UC2
-    Customer --- UC3
-    Customer --- UC4
-    Customer --- UC5
-    Customer --- UC6
-    Customer --- UC7
-    Customer --- UC8
-    Customer --- UC9
+    Customer --- Register
+    Customer --- Login
+    Customer --- ResetPassword
+    Customer --- BrowsePhones
+    Customer --- GetRecommendation
+    Customer --- ViewResults
 
-    %% Admin relationships
-    Admin --- UC2
-    Admin --- UC3
-    Admin --- UC10
-    Admin --- UC11
-    Admin --- UC12
-    Admin --- UC13
-    Admin --- UC14
-    Admin --- UC15
-    Admin --- UC16
-    Admin --- UC17
-    Admin --- UC18
-    Admin --- UC19
+    Seller --- Register
+    Seller --- Login
+    Seller --- ResetPassword
+    Seller --- AddPhone
+    Seller --- EditOwnPhone
+    Seller --- DeleteOwnPhone
+    Seller --- ViewOwnListings
+
+    Admin --- Login
+    Admin --- ManageAllPhones
+    Admin --- ViewAllUsers
+    Admin --- ViewSellers
+    Admin --- ViewRecommendations
+    Admin --- GenerateReport
 ```
 
 ---
 
-## 4. Activity Diagram - Customer Getting AI Recommendation
-
-Shows the step-by-step flow when a customer uses the AI recommendation feature.
+## 4. Activity Diagram - System Flow
 
 ```mermaid
-flowchart TD
-    Start([Start]) --> A[Customer visits KT Phones website]
-    A --> B{Already registered?}
-    B -->|No| C[Register new account]
-    C --> D[Fill: Name, Email, Password]
-    D --> E{Valid input?}
-    E -->|No| D
-    E -->|Yes| F[Account created]
-    F --> G[Login]
-    B -->|Yes| G
-    G --> H[Enter email and password]
-    H --> I{Credentials correct?}
-    I -->|No| J{Forgot password?}
-    J -->|Yes| K[Reset password via email]
-    K --> H
-    J -->|No| H
-    I -->|Yes| L[Redirected to Home Page]
-    L --> M[Click 'Get AI Recommendation']
-    M --> N[Fill Recommendation Form]
-    N --> N1[Select Budget Range]
-    N1 --> N2[Select Preferred Brand]
-    N2 --> N3[Check Usage Types]
-    N3 --> N4[Check Important Features]
-    N4 --> O[Click 'Find My Phone']
-    O --> P[AI Scoring Algorithm Runs]
-    P --> P1[Score each phone out of 100]
-    P1 --> P2[Budget Match: 30 points]
-    P2 --> P3[Brand Match: 20 points]
-    P3 --> P4[Usage Match: 30 points]
-    P4 --> P5[Feature Match: 20 points]
-    P5 --> Q[Sort phones by score descending]
-    Q --> R[Select Top 3 phones]
-    R --> S[Save recommendation to database]
-    S --> T[Display Results Page]
-    T --> U[Show Top 3 phones with match %]
-    U --> V{Satisfied?}
-    V -->|No| M
-    V -->|Yes| End([End])
+flowchart LR
+    Start([Start]) --> Auth{Authenticated?}
+    Auth -->|No| Login[Login or Register]
+    Login --> Auth
+    Auth -->|Yes| Role{Role?}
+
+    Role -->|Customer| Prefs[Submit Preferences]
+    Role -->|Seller| Manage[Manage My Listings]
+    Role -->|Admin| Monitor[Monitor System]
+
+    Prefs --> AI[AI Scores All Phones]
+    AI --> Results[Return Top 3 with Match %]
+    Results --> Save[Save to Recommendation History]
+    Save --> End([End])
+
+    Manage --> CRUD[Add / Edit / Delete Own Phones]
+    CRUD --> End
+
+    Monitor --> Overview[View Stats, Users, Reports]
+    Monitor --> Override[Edit or Delete Any Phone]
+    Override --> End
+    Overview --> End
 ```
 
 ---
 
-## 5. Activity Diagram - Admin Managing System
-
-Shows the admin workflow for managing the system.
+## 5. Role-Based Access Control Diagram
 
 ```mermaid
-flowchart TD
-    Start([Start]) --> A[Admin visits /admin]
-    A --> B{Logged in as Admin?}
-    B -->|No| C[Redirect to Login page]
-    C --> D[Enter admin credentials]
-    D --> E{Valid admin?}
-    E -->|No| C
-    E -->|Yes| F[Admin Dashboard Loaded]
-    B -->|Yes| F
-    F --> G{Select Action}
+graph TD
+    Request[Incoming Request]
+    Request --> SessionCheck{Session Active?}
+    SessionCheck -->|No| Reject401[401 Unauthorized]
+    SessionCheck -->|Yes| RoleCheck{User Role?}
 
-    G -->|Manage Phones| H[View Phone Table]
-    H --> H1{Action?}
-    H1 -->|Add| I[Fill Add Phone Form]
-    I --> I1[Enter name, brand, price, specs]
-    I1 --> I2[Upload phone photo]
-    I2 --> I3[Select usage types]
-    I3 --> I4[Click Add Phone]
-    I4 --> I5{Valid data?}
-    I5 -->|No| I
-    I5 -->|Yes| I6[Phone saved to database]
-    I6 --> H
+    RoleCheck -->|admin| AdminAccess[Full Access: All Phones, Users, Reports]
+    RoleCheck -->|seller| SellerCheck{Owns This Resource?}
+    RoleCheck -->|customer| CustomerAccess[Read Only: Browse and Recommend]
 
-    H1 -->|Edit| J[Click Edit on phone]
-    J --> J1[Modify phone details]
-    J1 --> J2[Save changes]
-    J2 --> H
-
-    H1 -->|Delete| K[Click Delete on phone]
-    K --> K1{Confirm delete?}
-    K1 -->|No| H
-    K1 -->|Yes| K2[Phone removed from database]
-    K2 --> H
-
-    G -->|View Users| L[Display all registered users]
-    G -->|View Recommendations| M[Display AI recommendation history]
-    G -->|Generate Reports| N{Report Type?}
-    N -->|Full Report| O[Generate Full System PDF]
-    N -->|Phone Report| P[Generate Phone Inventory PDF]
-    N -->|Recommendations Report| Q[Generate Recommendations PDF]
-    O --> R[PDF downloaded via PDFKit]
-    P --> R
-    Q --> R
-
-    G -->|Logout| S[Session destroyed]
-    S --> End([End])
+    SellerCheck -->|Yes| SellerAccess[Allowed: Add / Edit / Delete Own Phone]
+    SellerCheck -->|No| Reject403[403 Forbidden]
 ```
 
 ---
 
-## 6. Entity Relationship Diagram (ERD)
-
-Shows the database structure and relationships between collections.
+## 6. Entity Relationship Diagram
 
 ```mermaid
 erDiagram
     USER {
-        ObjectId _id PK
+        ObjectId _id
         String fullName
-        String email UK
+        String email
         String password
         String role
         Date createdAt
     }
 
     PHONE {
-        ObjectId _id PK
+        ObjectId _id
         String name
         String brand
         Number price
@@ -273,71 +194,75 @@ erDiagram
         Boolean featured
         String image
         String description
+        ObjectId addedBy
+        Date createdAt
+        Date updatedAt
     }
 
     RECOMMENDATION {
-        ObjectId _id PK
-        ObjectId userId FK
+        ObjectId _id
+        ObjectId userId
         Object preferences
         Array recommendedPhones
         Date createdAt
     }
 
-    USER ||--o{ RECOMMENDATION : "makes"
-    PHONE ||--o{ RECOMMENDATION : "recommended in"
+    USER ||--o{ RECOMMENDATION : makes
+    USER ||--o{ PHONE : lists
+    PHONE ||--o{ RECOMMENDATION : included_in
 ```
 
 ---
 
 ## 7. System Architecture Diagram
 
-Shows the technical layers of the application.
-
 ```mermaid
-graph TB
-    subgraph Client Layer - Browser
-        HTML[HTML Pages<br/>index, login, register,<br/>recommend, results, admin]
-        CSS[CSS Stylesheet<br/>style.css]
-        JS[JavaScript<br/>main.js + admin inline]
+graph TD
+    Browser[Browser HTML CSS JS]
+
+    subgraph Express Server
+        AuthRoutes[/api/auth]
+        PhoneRoutes[/api/phones]
+        RecommendRoutes[/api/recommend]
+        ReportRoutes[/api/report]
+        AuthMiddleware[middleware/auth.js isAdmin isSeller isAdminOrSeller]
     end
 
-    subgraph Server Layer - Node.js + Express
-        Routes[Routes Layer<br/>auth.js, phones.js,<br/>recommend.js, report.js]
-        Controllers[Controllers Layer<br/>authController.js<br/>phoneController.js<br/>recommendController.js]
-        AI[AI Engine<br/>calculateScore function<br/>Rule-based scoring algorithm]
-        PDF[PDF Generator<br/>PDFKit library]
-        Auth[Authentication<br/>bcrypt + express-session]
-        Upload[File Upload<br/>Multer middleware]
+    subgraph Controllers
+        AuthCtrl[authController.js]
+        PhoneCtrl[phoneController.js]
+        RecommendCtrl[recommendController.js]
     end
 
-    subgraph Database Layer - MongoDB
-        UsersCol[(Users Collection)]
-        PhonesCol[(Phones Collection)]
-        RecsCol[(Recommendations Collection)]
+    subgraph Models
+        UserModel[User.js]
+        PhoneModel[Phone.js]
+        RecModel[Recommendation.js]
     end
 
-    HTML --> Routes
-    CSS --> HTML
-    JS --> Routes
-    Routes --> Controllers
-    Controllers --> AI
-    Controllers --> PDF
-    Controllers --> Auth
-    Controllers --> Upload
-    Controllers --> UsersCol
-    Controllers --> PhonesCol
-    Controllers --> RecsCol
+    MongoDB[(MongoDB)]
+
+    Browser --> AuthRoutes
+    Browser --> PhoneRoutes
+    Browser --> RecommendRoutes
+    Browser --> ReportRoutes
+
+    PhoneRoutes --> AuthMiddleware
+    AuthMiddleware --> PhoneCtrl
+
+    AuthRoutes --> AuthCtrl
+    RecommendRoutes --> RecommendCtrl
+
+    AuthCtrl --> UserModel
+    PhoneCtrl --> PhoneModel
+    RecommendCtrl --> PhoneModel
+    RecommendCtrl --> RecModel
+
+    UserModel --> MongoDB
+    PhoneModel --> MongoDB
+    RecModel --> MongoDB
 ```
 
 ---
 
-## How to View These Diagrams
-
-1. **GitHub** — Push this file to GitHub, it renders Mermaid diagrams automatically
-2. **VS Code** — Install the "Markdown Preview Mermaid Support" extension
-3. **Online** — Paste the mermaid code at https://mermaid.live/
-4. **PDF Export** — Use a Markdown-to-PDF tool that supports Mermaid
-
----
-
-*KT Phones © 2024 - AI-Based Mobile Phone Recommendation Management Information System*
+*View diagrams interactively at https://mermaid.live — paste any code block above.*

@@ -64,6 +64,11 @@ const phoneSchema = new mongoose.Schema({
     description: {
         type: String,
         default: ''
+    },
+    addedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        default: null
     }
 }, {
     timestamps: true

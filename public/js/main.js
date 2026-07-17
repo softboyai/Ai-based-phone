@@ -36,6 +36,9 @@ document.addEventListener('DOMContentLoaded', () => {
         case 'admin':
             initAdminPanel();
             break;
+        case 'seller':
+            initSellerPanel();
+            break;
         case 'login':
             setupLoginForm();
             break;
@@ -107,6 +110,19 @@ function updateNavForLoggedIn(user) {
         adminLink.style.display = 'inline';
     }
 
+    // Show seller dashboard link if user is seller
+    let sellerLink = document.getElementById('nav-seller');
+    if (user.role === 'seller') {
+        if (!sellerLink) {
+            sellerLink = document.createElement('a');
+            sellerLink.id = 'nav-seller';
+            sellerLink.href = '/seller';
+            sellerLink.textContent = 'My Dashboard';
+            navLinks.insertBefore(sellerLink, userInfo);
+        }
+        sellerLink.style.display = 'inline';
+    }
+
     // Show logout link
     if (!logoutLink) {
         logoutLink = document.createElement('a');
@@ -132,6 +148,9 @@ function updateNavForLoggedOut() {
     if (userInfo) userInfo.style.display = 'none';
     if (logoutLink) logoutLink.style.display = 'none';
     if (adminLink) adminLink.style.display = 'none';
+
+    const sellerLink = document.getElementById('nav-seller');
+    if (sellerLink) sellerLink.style.display = 'none';
 }
 
 /**
@@ -195,6 +214,8 @@ function setupLoginForm() {
                 setTimeout(() => {
                     if (data.user.role === 'admin') {
                         window.location.href = '/admin';
+                    } else if (data.user.role === 'seller') {
+                        window.location.href = '/seller';
                     } else {
                         window.location.href = '/';
                     }
@@ -219,18 +240,22 @@ function setupRegisterForm() {
         e.preventDefault();
         clearMessages();
 
+        const submitBtn = form.querySelector('button[type="submit"]');
         const fullName = document.getElementById('fullName').value.trim();
         const email = document.getElementById('email').value.trim();
         const password = document.getElementById('password').value;
         const confirmPassword = document.getElementById('confirmPassword').value;
+        const roleEl = document.getElementById('role');
+        const role = roleEl ? roleEl.value : 'customer';
 
-        // Client-side validation
+        // ---- Client-side validation (must mirror server rules exactly) ----
+
         if (!fullName || !email || !password || !confirmPassword) {
             showMessage('Please fill in all fields', 'error');
             return;
         }
 
-        // Name validation - no numbers or special characters
+        // Name validation
         if (/[0-9]/.test(fullName)) {
             showMessage('Full name cannot contain numbers', 'error');
             return;
@@ -256,7 +281,7 @@ function setupRegisterForm() {
             return;
         }
 
-        // Password strength validation
+        // Password strength — must match server checks exactly
         if (password.length < 8) {
             showMessage('Password must be at least 8 characters', 'error');
             return;
@@ -277,12 +302,26 @@ function setupRegisterForm() {
             showMessage('Password must contain at least one special character (!@#$%^&*)', 'error');
             return;
         }
+        if (/(.)\1{3,}/.test(password)) {
+            showMessage('Password cannot contain 4 or more repeated characters', 'error');
+            return;
+        }
+        if (/1234|2345|3456|4567|5678|6789|abcd|bcde|cdef/.test(password.toLowerCase())) {
+            showMessage('Password cannot contain sequential characters like 1234 or abcd', 'error');
+            return;
+        }
+
+        // ---- Submit ----
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Registering...';
+        }
 
         try {
             const response = await fetch(`${API_BASE}/auth/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ fullName, email, password, confirmPassword })
+                body: JSON.stringify({ fullName, email, password, confirmPassword, role })
             });
 
             const data = await response.json();
@@ -290,13 +329,25 @@ function setupRegisterForm() {
             if (response.ok) {
                 showMessage('Registration successful! Redirecting...', 'success');
                 setTimeout(() => {
-                    window.location.href = '/';
+                    if (data.user.role === 'seller') {
+                        window.location.href = '/seller';
+                    } else {
+                        window.location.href = '/';
+                    }
                 }, 1000);
             } else {
                 showMessage(data.message || 'Registration failed', 'error');
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Register';
+                }
             }
         } catch (error) {
             showMessage('Network error. Please try again.', 'error');
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Register';
+            }
         }
     });
 }
@@ -780,6 +831,204 @@ async function loadAdminRecommendations() {
     } catch (error) {
         tableBody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:red;">Error loading recommendations</td></tr>';
     }
+}
+
+// ============================================================
+// SELLER PANEL
+// ============================================================
+
+/**
+ * Initialize the seller dashboard
+ */
+async function initSellerPanel() {
+    await checkSession();
+
+    setTimeout(() => {
+        if (!currentUser || (currentUser.role !== 'seller' && currentUser.role !== 'admin')) {
+            window.location.href = '/login';
+            return;
+        }
+
+        // Populate greeting
+        const greeting = document.getElementById('seller-greeting');
+        if (greeting) greeting.textContent = `Welcome, ${currentUser.fullName}`;
+
+        loadSellerListings();
+        setupSellerAddPhoneForm();
+    }, 500);
+}
+
+/**
+ * Load the seller's own phone listings
+ */
+async function loadSellerListings() {
+    const tableBody = document.getElementById('seller-phones-body');
+    if (!tableBody) return;
+
+    try {
+        const response = await fetch(`${API_BASE}/phones/my-listings`);
+        if (!response.ok) throw new Error('Failed to load');
+        const phones = await response.json();
+
+        // Update stats
+        const statEl = document.getElementById('seller-stat-listings');
+        if (statEl) statEl.textContent = phones.length;
+
+        const inStockEl = document.getElementById('seller-stat-instock');
+        const outStockEl = document.getElementById('seller-stat-outstock');
+        if (inStockEl) inStockEl.textContent = phones.filter(p => p.inStock).length;
+        if (outStockEl) outStockEl.textContent = phones.filter(p => !p.inStock).length;
+
+        if (phones.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#888; padding:20px;">No listings yet. Add your first phone above.</td></tr>';
+            return;
+        }
+
+        tableBody.innerHTML = phones.map(phone => `
+            <tr>
+                <td><img src="/images/${phone.image}" alt="${phone.name}" onerror="this.src='/images/default-phone.svg'" style="width:40px;height:40px;object-fit:cover;border-radius:6px;vertical-align:middle;margin-right:8px;">${phone.name}</td>
+                <td>${phone.brand}</td>
+                <td>${formatPrice(phone.price)} RWF</td>
+                <td>${phone.ram}GB / ${phone.storage}GB</td>
+                <td>${phone.inStock ? '<span style="color:#2e7d32;">✅ In Stock</span>' : '<span style="color:#c62828;">❌ Out</span>'}</td>
+                <td>${new Date(phone.createdAt).toLocaleDateString()}</td>
+                <td>
+                    <button onclick="sellerEditPhone('${phone._id}')" style="background:#e3f2fd;color:#1565c0;border:none;padding:5px 10px;border-radius:5px;cursor:pointer;font-size:0.78rem;margin-right:4px;">Edit</button>
+                    <button onclick="sellerDeletePhone('${phone._id}')" style="background:#ffebee;color:#c62828;border:none;padding:5px 10px;border-radius:5px;cursor:pointer;font-size:0.78rem;">Delete</button>
+                </td>
+            </tr>
+        `).join('');
+    } catch (error) {
+        tableBody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:red;">Error loading listings.</td></tr>';
+    }
+}
+
+/**
+ * Setup the seller's Add Phone form
+ */
+function setupSellerAddPhoneForm() {
+    const form = document.getElementById('seller-add-phone-form');
+    if (!form) return;
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(form);
+
+        const usageCheckboxes = form.querySelectorAll('input[name="usageType"]:checked');
+        const usageTypes = Array.from(usageCheckboxes).map(cb => cb.value);
+        formData.delete('usageType');
+        formData.append('usageType', usageTypes.join(','));
+
+        const msgEl = document.getElementById('seller-msg');
+        try {
+            const response = await fetch(`${API_BASE}/phones`, { method: 'POST', body: formData });
+            const data = await response.json();
+
+            if (response.ok) {
+                showSellerMessage('Phone listed successfully!', 'success');
+                form.reset();
+                loadSellerListings();
+            } else {
+                showSellerMessage(data.message || 'Error adding phone', 'error');
+            }
+        } catch (error) {
+            showSellerMessage('Network error. Please try again.', 'error');
+        }
+    });
+}
+
+/**
+ * Delete a seller's own phone
+ */
+async function sellerDeletePhone(phoneId) {
+    if (!confirm('Delete this listing? This cannot be undone.')) return;
+    try {
+        const response = await fetch(`${API_BASE}/phones/${phoneId}`, { method: 'DELETE' });
+        const data = await response.json();
+        if (response.ok) {
+            showSellerMessage('Listing deleted.', 'success');
+            loadSellerListings();
+        } else {
+            showSellerMessage(data.message || 'Error deleting listing', 'error');
+        }
+    } catch (error) {
+        showSellerMessage('Network error.', 'error');
+    }
+}
+
+/**
+ * Edit a seller's own phone — load into modal
+ */
+async function sellerEditPhone(phoneId) {
+    try {
+        const response = await fetch(`${API_BASE}/phones/${phoneId}`);
+        const phone = await response.json();
+
+        const modal = document.getElementById('seller-edit-modal');
+        if (!modal) return;
+
+        document.getElementById('sedit-id').value = phone._id;
+        document.getElementById('sedit-name').value = phone.name;
+        document.getElementById('sedit-brand').value = phone.brand;
+        document.getElementById('sedit-price').value = phone.price;
+        document.getElementById('sedit-ram').value = phone.ram;
+        document.getElementById('sedit-storage').value = phone.storage;
+        document.getElementById('sedit-battery').value = phone.battery;
+        document.getElementById('sedit-camera').value = phone.camera;
+        document.getElementById('sedit-description').value = phone.description || '';
+        document.getElementById('sedit-inStock').checked = phone.inStock;
+
+        // Set usage checkboxes
+        modal.querySelectorAll('input[name="usageType"]').forEach(cb => {
+            cb.checked = phone.usageType.includes(cb.value);
+        });
+
+        modal.style.display = 'flex';
+    } catch (error) {
+        showSellerMessage('Error loading phone data', 'error');
+    }
+}
+
+function closeSellerEditModal() {
+    const modal = document.getElementById('seller-edit-modal');
+    if (modal) modal.style.display = 'none';
+}
+
+async function submitSellerEditPhone(e) {
+    e.preventDefault();
+    const phoneId = document.getElementById('sedit-id').value;
+    const formData = new FormData(e.target);
+
+    const usageCheckboxes = e.target.querySelectorAll('input[name="usageType"]:checked');
+    const usageTypes = Array.from(usageCheckboxes).map(cb => cb.value);
+    formData.delete('usageType');
+    formData.append('usageType', usageTypes.join(','));
+
+    try {
+        const response = await fetch(`${API_BASE}/phones/${phoneId}`, { method: 'PUT', body: formData });
+        const data = await response.json();
+
+        if (response.ok) {
+            showSellerMessage('Listing updated!', 'success');
+            closeSellerEditModal();
+            loadSellerListings();
+        } else {
+            showSellerMessage(data.message || 'Update failed', 'error');
+        }
+    } catch (error) {
+        showSellerMessage('Network error.', 'error');
+    }
+}
+
+function showSellerMessage(msg, type) {
+    const el = document.getElementById('seller-msg');
+    if (!el) return;
+    el.textContent = msg;
+    el.style.display = 'block';
+    el.style.background = type === 'success' ? '#e8f5e9' : '#ffebee';
+    el.style.color = type === 'success' ? '#2e7d32' : '#c62828';
+    el.style.border = `1px solid ${type === 'success' ? '#a5d6a7' : '#ef9a9a'}`;
+    setTimeout(() => { el.style.display = 'none'; }, 5000);
 }
 
 // ============================================================

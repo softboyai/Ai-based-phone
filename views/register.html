@@ -48,7 +48,7 @@
                     <label for="password">Password</label>
                     <input type="password" id="password" name="password" placeholder="Create a strong password" required minlength="8">
                     <small style="color:#666; font-size:0.75rem; display:block; margin-top:5px;">
-                        Min 8 characters: uppercase + lowercase + number + special character (!@#$%^&*)
+                        Min 8 characters: uppercase + lowercase + number + special character (!@#$%^&*). No sequences like 1234 or abcd.
                     </small>
                     <!-- Password Strength Bar -->
                     <div style="display:flex; gap:4px; margin-top:8px;">
@@ -63,6 +63,14 @@
                 <div class="form-group">
                     <label for="confirmPassword">Confirm Password</label>
                     <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm your password" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="role">Register As</label>
+                    <select id="role" name="role" style="width:100%; padding:10px 11px; border:1px solid #ddd; border-radius:8px; font-size:0.9rem; font-family:'Poppins',sans-serif; color:#333; background:#fff; cursor:pointer;">
+                        <option value="customer">Customer – Browse &amp; get phone recommendations</option>
+                        <option value="seller">Seller – List and manage phones for sale</option>
+                    </select>
                 </div>
 
                 <button type="submit" class="btn btn-primary" style="width:100%;">Register</button>

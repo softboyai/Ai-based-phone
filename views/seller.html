@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seller Dashboard - KT Phones</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Poppins',sans-serif; background:#f0f2f5; }
+        .admin-wrap { display:flex; min-height:100vh; }
+
+        /* ---- Sidebar — same as admin ---- */
+        .sidebar { width:260px; background:linear-gradient(180deg,#1a237e 0%,#0d1452 100%); position:fixed; top:0; left:0; height:100vh; z-index:100; display:flex; flex-direction:column; }
+        .sidebar-brand { padding:30px 20px 20px; text-align:center; border-bottom:1px solid rgba(255,255,255,0.08); }
+        .sidebar-brand h2 { color:#ff6f00; font-size:1.3rem; }
+        .sidebar-brand small { color:rgba(255,255,255,0.6); font-size:0.7rem; }
+        .sidebar-menu { flex:1; padding:20px 0; }
+        .sidebar-menu a { display:flex; align-items:center; gap:12px; padding:13px 25px; color:rgba(255,255,255,0.8); font-size:0.88rem; transition:all 0.3s; border-left:3px solid transparent; cursor:pointer; text-decoration:none; }
+        .sidebar-menu a:hover { background:rgba(255,255,255,0.08); color:#fff; }
+        .sidebar-menu a.active { background:rgba(255,255,255,0.12); color:#fff; border-left-color:#ff6f00; }
+        .sidebar-bottom { padding:15px 20px; border-top:1px solid rgba(255,255,255,0.08); }
+        .sidebar-bottom a { color:#ff6f00; font-size:0.82rem; text-decoration:none; }
+
+        /* ---- Main ---- */
+        .main { margin-left:260px; flex:1; padding:25px 30px; min-height:100vh; }
+        .topbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:25px; }
+        .topbar h1 { font-size:1.4rem; color:#1a237e; }
+        .topbar .badge { background:#ff6f00; color:#fff; padding:5px 14px; border-radius:20px; font-size:0.75rem; }
+
+        /* ---- Stats ---- */
+        .stats { display:grid; grid-template-columns:repeat(3,1fr); gap:18px; margin-bottom:25px; }
+        .stat-box { background:#fff; padding:20px; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.05); border-left:4px solid #1a237e; }
+        .stat-box.s2 { border-left-color:#ff6f00; }
+        .stat-box.s3 { border-left-color:#c62828; }
+        .stat-box .val { font-size:2rem; font-weight:700; color:#1a237e; }
+        .stat-box .lbl { font-size:0.78rem; color:#888; margin-top:2px; }
+
+        /* ---- Panels ---- */
+        .panel { display:none; }
+        .panel.show { display:block; }
+        .card { background:#fff; border-radius:10px; padding:22px; box-shadow:0 2px 6px rgba(0,0,0,0.05); margin-bottom:20px; }
+        .card h3 { color:#1a237e; font-size:1.05rem; margin-bottom:15px; padding-bottom:10px; border-bottom:1px solid #f0f0f0; }
+
+        /* ---- Table ---- */
+        .dtable { width:100%; border-collapse:collapse; font-size:0.82rem; }
+        .dtable th { background:#f8f9fa; padding:11px 12px; text-align:left; font-weight:600; color:#444; border-bottom:2px solid #e8e8e8; }
+        .dtable td { padding:9px 12px; border-bottom:1px solid #f5f5f5; vertical-align:middle; }
+        .dtable tr:hover { background:#fafbff; }
+        .dtable img { width:42px; height:42px; border-radius:6px; object-fit:cover; background:#f0f0f0; }
+
+        /* ---- Buttons ---- */
+        .abtn { padding:4px 10px; border:none; border-radius:4px; font-size:0.75rem; cursor:pointer; font-family:'Poppins',sans-serif; font-weight:500; margin-right:4px; }
+        .abtn-edit { background:#e3f2fd; color:#1565c0; }
+        .abtn-del  { background:#ffebee; color:#c62828; }
+        .abtn-edit:hover { background:#bbdefb; }
+        .abtn-del:hover  { background:#ffcdd2; }
+
+        /* ---- Form ---- */
+        .fgrid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+        .fgrid .fw { grid-column:span 2; }
+        .fgrid label { display:block; font-size:0.8rem; font-weight:500; color:#444; margin-bottom:4px; }
+        .fgrid input,.fgrid select,.fgrid textarea { width:100%; padding:9px 11px; border:1px solid #ddd; border-radius:7px; font-size:0.85rem; font-family:'Poppins',sans-serif; }
+        .fgrid input:focus,.fgrid select:focus,.fgrid textarea:focus { outline:none; border-color:#1a237e; }
+        .fgrid textarea { min-height:65px; resize:vertical; }
+        .chks { display:flex; flex-wrap:wrap; gap:8px; }
+        .chks label { display:flex; align-items:center; gap:4px; font-weight:400; font-size:0.8rem; padding:5px 10px; border:1px solid #e0e0e0; border-radius:5px; cursor:pointer; }
+        .chks label:hover { border-color:#1a237e; }
+        .btn-sub { background:#1a237e; color:#fff; border:none; padding:11px 25px; border-radius:8px; font-size:0.9rem; cursor:pointer; font-family:'Poppins',sans-serif; font-weight:600; margin-top:10px; }
+        .btn-sub:hover { background:#0d1452; }
+        .btn-orange { background:#ff6f00; }
+        .btn-orange:hover { background:#e65100; }
+
+        /* ---- Alert ---- */
+        .msg { padding:10px 15px; border-radius:7px; margin-bottom:15px; font-size:0.85rem; display:none; }
+        .msg-ok  { background:#e8f5e9; color:#2e7d32; border:1px solid #a5d6a7; }
+        .msg-err { background:#ffebee; color:#c62828; border:1px solid #ef9a9a; }
+
+        /* ---- Modal ---- */
+        .modal-bg { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:200; justify-content:center; align-items:center; }
+        .modal-bg.open { display:flex; }
+        .modal-box { background:#fff; border-radius:12px; padding:25px; max-width:600px; width:90%; max-height:85vh; overflow-y:auto; }
+        .modal-box h3 { color:#1a237e; margin-bottom:15px; }
+        .close-x { float:right; background:none; border:none; font-size:1.4rem; cursor:pointer; color:#666; }
+
+        /* ---- Overview info list ---- */
+        .info-list { list-style:none; padding:0; }
+        .info-list li { padding:10px 0; border-bottom:1px solid #f5f5f5; font-size:0.88rem; color:#555; display:flex; align-items:flex-start; gap:10px; }
+        .info-list li:last-child { border-bottom:none; }
+        .info-list li span.icon { font-size:1.1rem; flex-shrink:0; }
+
+        @media(max-width:900px) {
+            .sidebar { display:none; }
+            .main { margin-left:0; padding:15px; }
+            .stats { grid-template-columns:repeat(2,1fr); }
+            .fgrid { grid-template-columns:1fr; }
+            .fgrid .fw { grid-column:span 1; }
+        }
+    </style>
+</head>
+<body data-page="seller">
+<div class="admin-wrap">
+
+    <!-- Sidebar — mirrors admin sidebar structure -->
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <h2>KT Phones</h2>
+            <small>Seller Dashboard</small>
+        </div>
+        <nav class="sidebar-menu">
+            <a class="active" onclick="switchPanel('overview', this)">📊 Overview</a>
+            <a onclick="switchPanel('listings', this)">📱 My Listings</a>
+            <a onclick="switchPanel('add', this)">➕ Add Phone</a>
+            <a href="/">🏠 Public Store</a>
+        </nav>
+        <div class="sidebar-bottom">
+            <a href="#" onclick="handleLogout()">← Logout</a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main">
+        <div class="topbar">
+            <h1 id="seller-greeting">📦 Seller Dashboard</h1>
+            <span class="badge">🛒 Seller</span>
+        </div>
+
+        <!-- Message -->
+        <div id="seller-msg" class="msg"></div>
+
+        <!-- Stats -->
+        <div class="stats">
+            <div class="stat-box">
+                <div class="val" id="seller-stat-listings">—</div>
+                <div class="lbl">My Listings</div>
+            </div>
+            <div class="stat-box s2">
+                <div class="val" id="seller-stat-instock">—</div>
+                <div class="lbl">In Stock</div>
+            </div>
+            <div class="stat-box s3">
+                <div class="val" id="seller-stat-outstock">—</div>
+                <div class="lbl">Out of Stock</div>
+            </div>
+        </div>
+
+        <!-- PANEL: Overview -->
+        <div id="panel-overview" class="panel show">
+            <div class="card">
+                <h3>📋 Welcome to Your Seller Dashboard</h3>
+                <ul class="info-list">
+                    <li><span class="icon">➕</span><span><strong>Add phones</strong> — List phones you want to sell on the KT Phones catalog. They become visible to all customers immediately.</span></li>
+                    <li><span class="icon">✏️</span><span><strong>Edit listings</strong> — Update price, specs, stock status, or description of any phone you've added.</span></li>
+                    <li><span class="icon">🗑️</span><span><strong>Remove listings</strong> — Delete phones you no longer sell. Only your own listings can be removed.</span></li>
+                    <li><span class="icon">🤖</span><span><strong>AI recommendations</strong> — Customers use our AI recommendation engine and may be suggested your phones based on their preferences.</span></li>
+                    <li><span class="icon">📦</span><span><strong>Stock control</strong> — Mark phones as in stock or out of stock so customers see accurate availability.</span></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- PANEL: My Listings -->
+        <div id="panel-listings" class="panel">
+            <div class="card">
+                <h3>📱 My Phone Listings</h3>
+                <div style="overflow-x:auto;">
+                    <table class="dtable">
+                        <thead>
+                            <tr>
+                                <th>Photo</th>
+                                <th>Name</th>
+                                <th>Brand</th>
+                                <th>Price (RWF)</th>
+                                <th>RAM / Storage</th>
+                                <th>Stock</th>
+                                <th>Added</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="seller-phones-body">
+                            <tr><td colspan="8" style="text-align:center; padding:25px; color:#888;">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- PANEL: Add Phone -->
+        <div id="panel-add" class="panel">
+            <div class="card">
+                <h3>➕ Add a New Phone Listing</h3>
+                <form id="seller-add-phone-form" enctype="multipart/form-data" class="fgrid">
+                    <div>
+                        <label>Phone Name *</label>
+                        <input type="text" name="name" placeholder="e.g. Samsung Galaxy A54" required>
+                    </div>
+                    <div>
+                        <label>Brand *</label>
+                        <select name="brand" required>
+                            <option value="">Select brand</option>
+                            <option>Samsung</option>
+                            <option>iPhone</option>
+                            <option>Tecno</option>
+                            <option>Infinix</option>
+                            <option>Nokia</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Price (RWF) *</label>
+                        <input type="number" name="price" placeholder="e.g. 350000" min="1" required>
+                    </div>
+                    <div>
+                        <label>RAM (GB) *</label>
+                        <input type="number" name="ram" placeholder="e.g. 6" min="1" required>
+                    </div>
+                    <div>
+                        <label>Storage (GB) *</label>
+                        <input type="number" name="storage" placeholder="e.g. 128" min="8" required>
+                    </div>
+                    <div>
+                        <label>Battery (mAh) *</label>
+                        <input type="number" name="battery" placeholder="e.g. 5000" min="1000" required>
+                    </div>
+                    <div>
+                        <label>Camera (MP) *</label>
+                        <input type="number" name="camera" placeholder="e.g. 50" min="2" required>
+                    </div>
+                    <div>
+                        <label>Stock Status</label>
+                        <select name="inStock">
+                            <option value="true">In Stock</option>
+                            <option value="false">Out of Stock</option>
+                        </select>
+                    </div>
+                    <div class="fw">
+                        <label>Usage Types * (select all that apply)</label>
+                        <div class="chks">
+                            <label><input type="checkbox" name="usageType" value="gaming"> 🎮 Gaming</label>
+                            <label><input type="checkbox" name="usageType" value="photography"> 📷 Photography</label>
+                            <label><input type="checkbox" name="usageType" value="business"> 💼 Business</label>
+                            <label><input type="checkbox" name="usageType" value="everyday"> 📱 Everyday Use</label>
+                            <label><input type="checkbox" name="usageType" value="social media"> 📲 Social Media</label>
+                        </div>
+                    </div>
+                    <div class="fw">
+                        <label>Phone Photo</label>
+                        <input type="file" name="image" accept="image/jpeg,image/png,image/gif,image/webp">
+                    </div>
+                    <div class="fw">
+                        <label>Description</label>
+                        <textarea name="description" placeholder="Brief description of this phone (optional)..."></textarea>
+                    </div>
+                    <div class="fw">
+                        <button type="submit" class="btn-sub">📱 List Phone for Sale</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div><!-- /.main -->
+</div><!-- /.admin-wrap -->
+
+<!-- Edit Listing Modal -->
+<div id="seller-edit-modal" class="modal-bg">
+    <div class="modal-box">
+        <button class="close-x" onclick="closeSellerEditModal()">&times;</button>
+        <h3>✏️ Edit Listing</h3>
+        <form id="seller-edit-form" enctype="multipart/form-data" onsubmit="submitSellerEditPhone(event)" class="fgrid">
+            <input type="hidden" id="sedit-id" name="id">
+            <div>
+                <label>Phone Name *</label>
+                <input type="text" id="sedit-name" name="name" required>
+            </div>
+            <div>
+                <label>Brand *</label>
+                <select id="sedit-brand" name="brand">
+                    <option>Samsung</option>
+                    <option>iPhone</option>
+                    <option>Tecno</option>
+                    <option>Infinix</option>
+                    <option>Nokia</option>
+                    <option>Other</option>
+                </select>
+            </div>
+            <div>
+                <label>Price (RWF) *</label>
+                <input type="number" id="sedit-price" name="price" min="1" required>
+            </div>
+            <div>
+                <label>RAM (GB) *</label>
+                <input type="number" id="sedit-ram" name="ram" min="1" required>
+            </div>
+            <div>
+                <label>Storage (GB) *</label>
+                <input type="number" id="sedit-storage" name="storage" min="8" required>
+            </div>
+            <div>
+                <label>Battery (mAh) *</label>
+                <input type="number" id="sedit-battery" name="battery" min="1000" required>
+            </div>
+            <div>
+                <label>Camera (MP) *</label>
+                <input type="number" id="sedit-camera" name="camera" min="2" required>
+            </div>
+            <div>
+                <label>Stock Status</label>
+                <select name="inStock">
+                    <option value="true">In Stock</option>
+                    <option value="false">Out of Stock</option>
+                </select>
+            </div>
+            <div class="fw">
+                <label>Usage Types</label>
+                <div class="chks" id="sedit-usage">
+                    <label><input type="checkbox" name="usageType" value="gaming"> 🎮 Gaming</label>
+                    <label><input type="checkbox" name="usageType" value="photography"> 📷 Photography</label>
+                    <label><input type="checkbox" name="usageType" value="business"> 💼 Business</label>
+                    <label><input type="checkbox" name="usageType" value="everyday"> 📱 Everyday Use</label>
+                    <label><input type="checkbox" name="usageType" value="social media"> 📲 Social Media</label>
+                </div>
+            </div>
+            <div class="fw">
+                <label>Replace Photo (optional)</label>
+                <input type="file" name="image" accept="image/jpeg,image/png,image/gif,image/webp">
+            </div>
+            <div class="fw">
+                <label>Description</label>
+                <textarea id="sedit-description" name="description"></textarea>
+            </div>
+            <div class="fw">
+                <label><input type="checkbox" id="sedit-inStock" style="width:auto; margin-right:6px;">In Stock</label>
+            </div>
+            <div class="fw">
+                <button type="submit" class="btn-sub btn-orange">💾 Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="/js/main.js"></script>
+<script>
+    function switchPanel(name, el) {
+        document.querySelectorAll('.panel').forEach(p => p.classList.remove('show'));
+        document.querySelectorAll('.sidebar-menu a').forEach(a => a.classList.remove('active'));
+        document.getElementById('panel-' + name).classList.add('show');
+        if (el) el.classList.add('active');
+        if (name === 'listings') loadSellerListings();
+    }
+</script>
+</body>
+</html>

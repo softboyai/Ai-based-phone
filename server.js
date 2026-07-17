@@ -100,6 +100,10 @@ app.get('/admin', (req, res) => {
     res.sendFile(path.join(__dirname, 'views', 'admin.html'));
 });
 
+app.get('/seller', (req, res) => {
+    res.sendFile(path.join(__dirname, 'views', 'seller.html'));
+});
+
 app.get('/forgot-password', (req, res) => {
     res.sendFile(path.join(__dirname, 'views', 'forgot-password.html'));
 });
