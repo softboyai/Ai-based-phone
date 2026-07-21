@@ -2,29 +2,34 @@
 
 ## 📌 What Is This Project?
 
-A **web application** that helps customers find the best mobile phone based on their preferences using an **AI-based recommendation engine** (rule-based scoring algorithm). It also provides a complete marketplace platform with three user roles:
+A **web application** that helps customers of KT Phones find the best mobile phone based on their preferences using an **AI-based recommendation engine** (rule-based scoring algorithm).
 
-- **Customer** — browses phones and gets AI-powered recommendations
-- **Seller** — registers to list phones for sale and manages their own inventory
-- **Admin** — monitors the system, oversees all listings, manages users, and generates reports
+**Case Study:** KT Phones — a single mobile phone shop that uses this system to manage its phone catalog and help walk-in or online customers choose the right phone through AI-powered recommendations.
 
-**Case Study:** KT Phones — a mobile phone marketplace that connects sellers with customers and uses AI to help customers choose the right phone.
+The system has three user roles, each with a distinct responsibility:
+
+- **Customer** — browses the KT Phones catalog and gets AI-powered phone recommendations
+- **Seller** — a KT Phones staff member responsible for managing the phone catalog (adding new arrivals, updating prices, marking stock status)
+- **Admin** — the system administrator who monitors the whole system, manages user accounts, and generates management reports
+
+> **Why a Seller role?** The Admin is an IT/system person — they should not be doing product data entry. The Seller is shop staff — they should not have access to system reports or user data. Separating these responsibilities is a core principle of good system design (separation of concerns).
 
 ---
 
 ## 👥 User Roles
 
-| Role | What They Do | Dashboard |
-|------|-------------|-----------|
-| **Customer** | Register, browse phones, get AI recommendations | Public website |
-| **Seller** | Register, add/edit/delete their own phone listings | `/seller` dashboard |
-| **Admin** | Monitor system, manage all phones, view all users and sellers, generate PDF reports | `/admin` dashboard |
+| Role | Who They Are | What They Do | Dashboard |
+|------|-------------|-------------|-----------|
+| **Customer** | Walk-in or online KT Phones customer | Browse catalog, get AI recommendations | Public website |
+| **Seller** | KT Phones shop staff | Add new phones, update prices, manage stock | `/seller` dashboard |
+| **Admin** | KT Phones system administrator | Monitor system, manage users, generate reports | `/admin` dashboard |
 
 ### Key Role Rules:
-- **Sellers** can only edit or delete phones **they listed** — not other sellers' phones
-- **Admin** has override power — can edit or delete **any** phone in the system
-- **Admin** account is created manually (via `seed.js`) — cannot be self-registered
-- **Customers and Sellers** register themselves from the Register page
+- **Seller** is a KT Phones employee — not an external vendor. They manage the shop's phone catalog.
+- **Sellers** can only edit or delete phones **they added** — preventing accidental changes to each other's entries
+- **Admin** has full override — can edit or delete **any** phone in the system
+- **Admin** account is created manually (via `seed.js`) — cannot be self-registered for security
+- **Customers and Sellers** register from the Register page — Sellers select "Register As: Seller"
 
 ---
 
@@ -121,9 +126,10 @@ http://localhost:3000
 | Role | Email | Password |
 |------|-------|----------|
 | **Admin** | admin@ktphones.com | KtPh0n3s@2024 |
+| **Seller** (KT Phones staff) | seller@ktphones.com | KtSell3r@2024 |
 
-Sellers and Customers register their own accounts from the **Register** page (`/register`).  
-On the register form, select **"Register As"**: Customer or Seller.
+Sellers and Customers can also register their own accounts from the **Register** page (`/register`).  
+On the register form, select **"Register As"**: Customer or Seller (KT Phones Staff).
 
 ### Password Requirements:
 - Minimum 8 characters

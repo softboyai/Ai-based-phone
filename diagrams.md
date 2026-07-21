@@ -7,17 +7,17 @@
 ```mermaid
 graph LR
     Customer([Customer])
-    Seller([Seller])
-    Admin([Administrator])
+    Seller([KT Phones Staff - Seller])
+    Admin([System Administrator])
     KTPhones[KT Phones AI Recommendation System]
     MongoDB[(MongoDB Database)]
 
     Customer -->|Submit Preferences| KTPhones
     KTPhones -->|Phone Recommendations| Customer
 
-    Seller -->|Add / Edit / Delete Own Listings| KTPhones
+    Seller -->|Add / Update / Remove Phone Listings| KTPhones
 
-    Admin -->|Monitor System, Manage All Phones| KTPhones
+    Admin -->|Monitor System, Manage All Phones & Users| KTPhones
     KTPhones -->|PDF Reports & System Stats| Admin
 
     KTPhones <-->|Store and Retrieve Data| MongoDB

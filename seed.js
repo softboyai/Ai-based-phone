@@ -1,10 +1,11 @@
 /**
  * Database Seed Script
- * 
+ *
  * This script populates the MongoDB database with:
  * - 10 sample phones with realistic specifications
- * - 1 default admin account (admin@ktphones.com / admin123)
- * 
+ * - 1 default admin account  (admin@ktphones.com  / KtPh0n3s@2024)
+ * - 1 sample seller account  (seller@ktphones.com / KtSell3r@2024)
+ *
  * Run this script with: node seed.js
  */
 
@@ -174,6 +175,16 @@ const adminUser = {
 };
 
 // ============================================================
+// SAMPLE SELLER ACCOUNT (KT Phones staff member)
+// ============================================================
+const sellerUser = {
+    fullName: 'Alice Uwimana',
+    email: 'seller@ktphones.com',
+    password: 'KtSell3r@2024',
+    role: 'seller'
+};
+
+// ============================================================
 // SEED FUNCTION
 // ============================================================
 async function seedDatabase() {
@@ -191,12 +202,19 @@ async function seedDatabase() {
         await Phone.insertMany(phones);
         console.log(`📱 Added ${phones.length} phones to the database`);
 
-        // Create admin user (password will be hashed by the model pre-save hook)
+        // Create admin user (password hashed by model pre-save hook)
         const admin = new User(adminUser);
         await admin.save();
         console.log('👤 Created admin account:');
-        console.log('   Email: admin@ktphones.com');
+        console.log('   Email:    admin@ktphones.com');
         console.log('   Password: KtPh0n3s@2024');
+
+        // Create sample seller (KT Phones staff member)
+        const seller = new User(sellerUser);
+        await seller.save();
+        console.log('🛒 Created seller account (KT Phones staff):');
+        console.log('   Email:    seller@ktphones.com');
+        console.log('   Password: KtSell3r@2024');
 
         console.log('\n✅ Database seeded successfully!');
         console.log('🚀 You can now start the server with: node server.js');
