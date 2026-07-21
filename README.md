@@ -16,6 +16,32 @@ The system has three user roles, each with a distinct responsibility:
 
 ---
 
+> ## ⚠️ NB: IMPORTANT CLARIFICATION — THIS IS NOT A MARKETPLACE
+>
+> **This system is NOT Amazon, Etsy, Jumia, or any multi-vendor marketplace.**
+>
+> KT Phones is a **single phone shop**. There is one shop, one catalog, one brand — KT Phones.
+>
+> The **Seller role does not represent an external third-party vendor** selling their own products. The Seller is a **KT Phones employee** — a shop floor staff member whose job is to manage the shop's phone catalog on behalf of the business.
+>
+> ### Why was the Seller role added then?
+>
+> The original system had only two roles: Admin and Customer. The Admin was responsible for everything — system monitoring, user management, reports, AND adding/editing/deleting phones from the catalog. This is a poor design because it mixes **system administration** with **product management** into a single role.
+>
+> The Seller role was introduced to apply **separation of concerns**:
+>
+> | Role | Responsibility | Analogy |
+> |------|---------------|---------|
+> | **Admin** | System control — monitors users, generates reports, oversees the system | IT Manager |
+> | **Seller** | Product management — adds phones, updates prices, manages stock | Shop Floor Staff |
+> | **Customer** | End user — browses catalog, gets AI recommendations | Walk-in Customer |
+>
+> In a real phone shop, the IT administrator does not walk to the shelf and manually enter every new phone model that arrives. That is the job of the shop staff. This system reflects that real-world separation.
+>
+> **The Seller is always a KT Phones employee.** The shop has one catalog. All phones listed by all sellers belong to KT Phones. The admin has full override power over all listings at all times.
+
+---
+
 ## 👥 User Roles
 
 | Role | Who They Are | What They Do | Dashboard |
