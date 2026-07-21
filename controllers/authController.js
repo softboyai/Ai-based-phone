@@ -239,6 +239,9 @@ exports.forgotPassword = async (req, res) => {
         if (/(.)\1{3,}/.test(newPassword)) {
             return res.status(400).json({ message: 'Password cannot contain 4 or more repeated characters' });
         }
+        if (/1234|2345|3456|4567|5678|6789|abcd|bcde|cdef/.test(newPassword.toLowerCase())) {
+            return res.status(400).json({ message: 'Password cannot contain sequential characters like 1234 or abcd' });
+        }
 
         // Find user by email
         const user = await User.findOne({ email: email.toLowerCase() });

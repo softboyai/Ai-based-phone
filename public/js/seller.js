@@ -180,3 +180,8 @@ function showSellerMsg(text, type) {
     el.style.display = 'block';
     setTimeout(() => { el.style.display = 'none'; }, 4000);
 }
+
+async function sellerLogout() {
+    await fetch('/api/auth/logout');
+    window.location.href = '/login';
+}

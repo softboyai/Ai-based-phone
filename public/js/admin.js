@@ -127,22 +127,20 @@ function renderSellers() {
 }
 
 // ── Customers table ──────────────────────────────────────────
+// Only shows users with role === 'customer'. Sellers have their own dedicated panel.
 function renderCustomers() {
-    const customers = allUsers.filter(u => u.role !== 'admin');
+    const customers = allUsers.filter(u => u.role === 'customer');
     const tb = document.getElementById('tb-users');
     if (!customers.length) {
-        tb.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px;">No users yet.</td></tr>';
+        tb.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px;color:#888;">No customers registered yet.</td></tr>';
         return;
     }
-    tb.innerHTML = customers.map(u => {
-        const bg = u.role === 'seller' ? '#ff6f00' : '#1a237e';
-        return `<tr>
-            <td>${u.fullName}</td>
-            <td>${u.email}</td>
-            <td><span class="role-badge" style="background:${bg};">${u.role}</span></td>
-            <td>${new Date(u.createdAt).toLocaleDateString()}</td>
-        </tr>`;
-    }).join('');
+    tb.innerHTML = customers.map(u => `<tr>
+        <td>${u.fullName}</td>
+        <td>${u.email}</td>
+        <td><span class="role-badge" style="background:#1a237e;">customer</span></td>
+        <td>${new Date(u.createdAt).toLocaleDateString()}</td>
+    </tr>`).join('');
 }
 
 // ── Recommendations table ────────────────────────────────────
