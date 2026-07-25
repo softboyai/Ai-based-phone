@@ -267,9 +267,9 @@ exports.adminCreateUser = async (req, res) => {
             return res.status(400).json({ message: 'Full name, email, password and role are required' });
         }
 
-        const allowedRoles = ['customer', 'seller'];
+        const allowedRoles = ['customer', 'seller', 'admin'];
         if (!allowedRoles.includes(role)) {
-            return res.status(400).json({ message: 'Role must be customer or seller' });
+            return res.status(400).json({ message: 'Role must be admin, seller, or customer' });
         }
 
         if (/[0-9]/.test(fullName) || /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(fullName)) {
@@ -340,9 +340,9 @@ exports.adminEditUser = async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        // Prevent demoting the only admin
+        // Prevent demoting an admin to a lower role (but allow promoting to admin)
         if (user.role === 'admin' && role && role !== 'admin') {
-            return res.status(400).json({ message: 'Cannot change role of an admin account' });
+            return res.status(400).json({ message: 'Cannot change role of an existing admin account' });
         }
 
         if (fullName !== undefined) {
@@ -368,9 +368,9 @@ exports.adminEditUser = async (req, res) => {
         }
 
         if (role !== undefined && user.role !== 'admin') {
-            const allowedRoles = ['customer', 'seller'];
+            const allowedRoles = ['customer', 'seller', 'admin'];
             if (!allowedRoles.includes(role)) {
-                return res.status(400).json({ message: 'Role must be customer or seller' });
+                return res.status(400).json({ message: 'Role must be admin, seller, or customer' });
             }
             user.role = role;
         }

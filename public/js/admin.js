@@ -35,6 +35,7 @@ function switchPanel(name, el) {
     const titles = {
         dashboard : '📊 Dashboard',
         phones    : '📱 All Phone Listings',
+        admins    : '🔒 Admin Accounts',
         sellers   : '🛒 Sellers',
         users     : '👥 Customers',
         recs      : '🤖 AI Recommendations',
@@ -58,6 +59,7 @@ async function loadAll() {
         updateDashboardStats();
         updateAiConfidence();
         renderPhones();
+        renderAdmins();
         renderSellers();
         renderCustomers();
         renderRecs();
@@ -132,6 +134,27 @@ function renderPhones() {
             </td>
         </tr>`;
     }).join('');
+}
+
+// ── Admins panel ─────────────────────────────────────────────
+function renderAdmins() {
+    const admins = allUsers.filter(u => u.role === 'admin');
+    const tb = document.getElementById('tb-admins');
+    if (!tb) return;
+    if (!admins.length) {
+        tb.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;color:#888;">No admin accounts found.</td></tr>';
+        return;
+    }
+    tb.innerHTML = admins.map(a => `<tr>
+        <td><strong>${a.fullName}</strong></td>
+        <td>${a.email}</td>
+        <td>${statusBadge(a)}</td>
+        <td>${new Date(a.createdAt).toLocaleDateString()}</td>
+        <td>
+            <button class="abtn abtn-edit" onclick="openEditUserModal('${a._id}')">✏️ Edit</button>
+            ${statusButton(a)}
+        </td>
+    </tr>`).join('');
 }
 
 // ── Sellers panel ────────────────────────────────────────────
@@ -367,11 +390,11 @@ async function delPhone(id) {
  * Open the Add User modal, pre-selecting the role tab
  */
 function openAddUserModal(role) {
-    document.getElementById('au-role').value = role || 'seller';
-    document.getElementById('add-user-modal-title').textContent =
-        role === 'customer' ? '➕ Add New Customer' : '➕ Add New Seller';
     document.getElementById('frm-add-user').reset();
-    document.getElementById('au-role').value = role || 'seller';
+    const roleSelect = document.getElementById('au-role');
+    roleSelect.value = role || 'seller';
+    const titles = { admin: '➕ Add New Admin', seller: '➕ Add New Seller', customer: '➕ Add New Customer' };
+    document.getElementById('add-user-modal-title').textContent = titles[role] || '➕ Add New User';
     document.getElementById('add-user-modal').classList.add('open');
 }
 
@@ -416,7 +439,7 @@ function openEditUserModal(userId) {
     document.getElementById('eu-email').value    = user.email;
     document.getElementById('eu-role').value     = user.role;
     document.getElementById('eu-password').value = '';
-    // Disable role select for admin accounts
+    // Disable role change for existing admins — use dedicated Add Admin for that
     document.getElementById('eu-role').disabled  = user.role === 'admin';
     document.getElementById('edit-user-modal').classList.add('open');
 }
