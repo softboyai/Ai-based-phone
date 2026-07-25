@@ -157,7 +157,11 @@ function renderSellers() {
             <td>${sInStock}</td>
             <td>${statusBadge(s)}</td>
             <td>${new Date(s.createdAt).toLocaleDateString()}</td>
-            <td>${statusButton(s)}</td>
+            <td>
+                <button class="abtn abtn-edit" onclick="openEditUserModal('${s._id}')">✏️ Edit</button>
+                ${statusButton(s)}
+                <button class="abtn abtn-del"  onclick="deleteUser('${s._id}', '${s.fullName}')">🗑️ Delete</button>
+            </td>
         </tr>`;
     }).join('');
 }
@@ -177,7 +181,11 @@ function renderCustomers() {
         <td><span class="role-badge" style="background:#1a237e;">customer</span></td>
         <td>${statusBadge(u)}</td>
         <td>${new Date(u.createdAt).toLocaleDateString()}</td>
-        <td>${statusButton(u)}</td>
+        <td>
+            <button class="abtn abtn-edit" onclick="openEditUserModal('${u._id}')">✏️ Edit</button>
+            ${statusButton(u)}
+            <button class="abtn abtn-del"  onclick="deleteUser('${u._id}', '${u.fullName}')">🗑️ Delete</button>
+        </td>
     </tr>`).join('');
 }
 
@@ -353,6 +361,119 @@ async function delPhone(id) {
     } catch (e) { showMsg('Network error', 'err'); }
 }
 
+// ── User Management (Add / Edit / Delete) ────────────────────
+
+/**
+ * Open the Add User modal, pre-selecting the role tab
+ */
+function openAddUserModal(role) {
+    document.getElementById('au-role').value = role || 'seller';
+    document.getElementById('add-user-modal-title').textContent =
+        role === 'customer' ? '➕ Add New Customer' : '➕ Add New Seller';
+    document.getElementById('frm-add-user').reset();
+    document.getElementById('au-role').value = role || 'seller';
+    document.getElementById('add-user-modal').classList.add('open');
+}
+
+function closeAddUserModal() {
+    document.getElementById('add-user-modal').classList.remove('open');
+}
+
+async function submitAddUser(e) {
+    e.preventDefault();
+    const fullName = document.getElementById('au-name').value.trim();
+    const email    = document.getElementById('au-email').value.trim();
+    const role     = document.getElementById('au-role').value;
+    const password = document.getElementById('au-password').value;
+
+    try {
+        const res  = await fetch(`${API}/auth/users`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ fullName, email, role, password })
+        });
+        const data = await res.json();
+        if (res.ok) {
+            showMsg(data.message, 'ok');
+            closeAddUserModal();
+            loadAll();
+        } else {
+            showMsg(data.message || 'Error creating user', 'err');
+        }
+    } catch (err) {
+        showMsg('Network error', 'err');
+    }
+}
+
+/**
+ * Open the Edit User modal, pre-filled with user data
+ */
+function openEditUserModal(userId) {
+    const user = allUsers.find(u => u._id === userId);
+    if (!user) return;
+    document.getElementById('eu-id').value       = user._id;
+    document.getElementById('eu-name').value     = user.fullName;
+    document.getElementById('eu-email').value    = user.email;
+    document.getElementById('eu-role').value     = user.role;
+    document.getElementById('eu-password').value = '';
+    // Disable role select for admin accounts
+    document.getElementById('eu-role').disabled  = user.role === 'admin';
+    document.getElementById('edit-user-modal').classList.add('open');
+}
+
+function closeEditUserModal() {
+    document.getElementById('edit-user-modal').classList.remove('open');
+}
+
+async function submitEditUser(e) {
+    e.preventDefault();
+    const id       = document.getElementById('eu-id').value;
+    const fullName = document.getElementById('eu-name').value.trim();
+    const email    = document.getElementById('eu-email').value.trim();
+    const role     = document.getElementById('eu-role').value;
+    const password = document.getElementById('eu-password').value;
+
+    const body = { fullName, email, role };
+    if (password.trim() !== '') body.password = password;
+
+    try {
+        const res  = await fetch(`${API}/auth/users/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        });
+        const data = await res.json();
+        if (res.ok) {
+            showMsg(data.message, 'ok');
+            closeEditUserModal();
+            loadAll();
+        } else {
+            showMsg(data.message || 'Error updating user', 'err');
+        }
+    } catch (err) {
+        showMsg('Network error', 'err');
+    }
+}
+
+/**
+ * Delete a user after confirmation
+ */
+async function deleteUser(userId, userName) {
+    if (!confirm(`Delete account for "${userName}"? This cannot be undone.`)) return;
+    try {
+        const res  = await fetch(`${API}/auth/users/${userId}`, { method: 'DELETE' });
+        const data = await res.json();
+        if (res.ok) {
+            showMsg(data.message, 'ok');
+            loadAll();
+        } else {
+            showMsg(data.message || 'Error deleting user', 'err');
+        }
+    } catch (err) {
+        showMsg('Network error', 'err');
+    }
+}
+
 // ── Utilities ─────────────────────────────────────────────────
 function fmtPrice(n) {
     return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
@@ -370,3 +491,16 @@ async function adminLogout() {
     await fetch('/api/auth/logout');
     window.location.href = '/login';
 }
+
+// Close modals on backdrop click
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('add-user-modal').addEventListener('click', function(e) {
+        if (e.target === this) closeAddUserModal();
+    });
+    document.getElementById('edit-user-modal').addEventListener('click', function(e) {
+        if (e.target === this) closeEditUserModal();
+    });
+    document.getElementById('edit-modal').addEventListener('click', function(e) {
+        if (e.target === this) closeModal();
+    });
+});

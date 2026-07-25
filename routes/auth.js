@@ -27,8 +27,17 @@ router.get('/session', authController.getSession);
 // Get all users (admin only)
 router.get('/users', authController.getAllUsers);
 
-// Activate or deactivate a user (admin only)
+// Admin: create a new seller or customer account
+router.post('/users', authController.adminCreateUser);
+
+// Activate or deactivate a user — must be before generic /:id to avoid shadowing
 router.put('/users/:id/status', authController.updateUserStatus);
+
+// Admin: edit user (name, email, role, password)
+router.put('/users/:id', authController.adminEditUser);
+
+// Admin: delete user
+router.delete('/users/:id', authController.adminDeleteUser);
 
 // Forgot password - reset password
 router.post('/forgot-password', authController.forgotPassword);

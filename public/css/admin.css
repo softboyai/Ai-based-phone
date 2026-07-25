@@ -56,8 +56,10 @@ body { font-family:'Poppins',sans-serif; background:#f0f2f5; }
 .abtn { padding:4px 10px; border:none; border-radius:4px; font-size:0.75rem; cursor:pointer; font-family:'Poppins',sans-serif; font-weight:500; margin-right:4px; }
 .abtn-edit { background:#e3f2fd; color:#1565c0; }
 .abtn-del  { background:#ffebee; color:#c62828; }
+.abtn-add  { background:#e8f5e9; color:#2e7d32; padding:7px 14px; font-size:0.82rem; border-radius:6px; border:none; cursor:pointer; font-family:'Poppins',sans-serif; font-weight:600; }
 .abtn-edit:hover { background:#bbdefb; }
 .abtn-del:hover  { background:#ffcdd2; }
+.abtn-add:hover  { background:#c8e6c9; }
 
 /* ── Forms ──────────────────────────────────────────────── */
 .fgrid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }

@@ -253,6 +253,183 @@ exports.updateUserStatus = async (req, res) => {
 };
 
 // ============================================================
+// CREATE USER (Admin Only) - admin can create seller or customer accounts
+// ============================================================
+exports.adminCreateUser = async (req, res) => {
+    try {
+        if (req.session.userRole !== 'admin') {
+            return res.status(403).json({ message: 'Access denied. Admin only.' });
+        }
+
+        const { fullName, email, password, role } = req.body;
+
+        if (!fullName || !email || !password || !role) {
+            return res.status(400).json({ message: 'Full name, email, password and role are required' });
+        }
+
+        const allowedRoles = ['customer', 'seller'];
+        if (!allowedRoles.includes(role)) {
+            return res.status(400).json({ message: 'Role must be customer or seller' });
+        }
+
+        if (/[0-9]/.test(fullName) || /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(fullName)) {
+            return res.status(400).json({ message: 'Full name can only contain letters and spaces' });
+        }
+        if (fullName.trim().length < 3) {
+            return res.status(400).json({ message: 'Full name must be at least 3 characters' });
+        }
+
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({ message: 'Please enter a valid email address' });
+        }
+
+        const existing = await User.findOne({ email: email.toLowerCase() });
+        if (existing) {
+            return res.status(400).json({ message: 'Email already registered' });
+        }
+
+        if (password.length < 8) {
+            return res.status(400).json({ message: 'Password must be at least 8 characters' });
+        }
+        if (!/[A-Z]/.test(password)) {
+            return res.status(400).json({ message: 'Password must contain at least one uppercase letter' });
+        }
+        if (!/[a-z]/.test(password)) {
+            return res.status(400).json({ message: 'Password must contain at least one lowercase letter' });
+        }
+        if (!/[0-9]/.test(password)) {
+            return res.status(400).json({ message: 'Password must contain at least one number' });
+        }
+        if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+            return res.status(400).json({ message: 'Password must contain at least one special character (!@#$%^&*)' });
+        }
+
+        const user = new User({
+            fullName,
+            email: email.toLowerCase(),
+            password,
+            role
+        });
+        await user.save();
+
+        res.status(201).json({
+            message: `${role.charAt(0).toUpperCase() + role.slice(1)} account created successfully`,
+            user: { id: user._id, fullName: user.fullName, email: user.email, role: user.role }
+        });
+    } catch (error) {
+        console.error('Admin create user error:', error);
+        res.status(500).json({ message: 'Server error while creating user' });
+    }
+};
+
+// ============================================================
+// EDIT USER (Admin Only) - update name, email, role, optional password
+// ============================================================
+exports.adminEditUser = async (req, res) => {
+    try {
+        if (req.session.userRole !== 'admin') {
+            return res.status(403).json({ message: 'Access denied. Admin only.' });
+        }
+
+        const { fullName, email, role, password } = req.body;
+        const userId = req.params.id;
+
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Prevent demoting the only admin
+        if (user.role === 'admin' && role && role !== 'admin') {
+            return res.status(400).json({ message: 'Cannot change role of an admin account' });
+        }
+
+        if (fullName !== undefined) {
+            if (/[0-9]/.test(fullName) || /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(fullName)) {
+                return res.status(400).json({ message: 'Full name can only contain letters and spaces' });
+            }
+            if (fullName.trim().length < 3) {
+                return res.status(400).json({ message: 'Full name must be at least 3 characters' });
+            }
+            user.fullName = fullName;
+        }
+
+        if (email !== undefined) {
+            const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            if (!emailRegex.test(email)) {
+                return res.status(400).json({ message: 'Please enter a valid email address' });
+            }
+            const duplicate = await User.findOne({ email: email.toLowerCase(), _id: { $ne: userId } });
+            if (duplicate) {
+                return res.status(400).json({ message: 'Email already in use by another account' });
+            }
+            user.email = email.toLowerCase();
+        }
+
+        if (role !== undefined && user.role !== 'admin') {
+            const allowedRoles = ['customer', 'seller'];
+            if (!allowedRoles.includes(role)) {
+                return res.status(400).json({ message: 'Role must be customer or seller' });
+            }
+            user.role = role;
+        }
+
+        if (password && password.trim() !== '') {
+            if (password.length < 8 || !/[A-Z]/.test(password) || !/[a-z]/.test(password) ||
+                !/[0-9]/.test(password) || !/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+                return res.status(400).json({ message: 'New password must be 8+ chars with uppercase, lowercase, number and special character' });
+            }
+            user.password = password;
+        }
+
+        await user.save();
+
+        res.status(200).json({
+            message: 'User updated successfully',
+            user: { id: user._id, fullName: user.fullName, email: user.email, role: user.role }
+        });
+    } catch (error) {
+        console.error('Admin edit user error:', error);
+        res.status(500).json({ message: 'Server error while updating user' });
+    }
+};
+
+// ============================================================
+// DELETE USER (Admin Only)
+// ============================================================
+exports.adminDeleteUser = async (req, res) => {
+    try {
+        if (req.session.userRole !== 'admin') {
+            return res.status(403).json({ message: 'Access denied. Admin only.' });
+        }
+
+        const userId = req.params.id;
+
+        // Prevent self-deletion
+        if (userId === req.session.userId.toString()) {
+            return res.status(400).json({ message: 'You cannot delete your own admin account' });
+        }
+
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        if (user.role === 'admin') {
+            return res.status(400).json({ message: 'Admin accounts cannot be deleted from the panel' });
+        }
+
+        await User.findByIdAndDelete(userId);
+
+        res.status(200).json({ message: 'User deleted successfully' });
+    } catch (error) {
+        console.error('Admin delete user error:', error);
+        res.status(500).json({ message: 'Server error while deleting user' });
+    }
+};
+
+// ============================================================
 // FORGOT PASSWORD - Reset password using email and security check
 // ============================================================
 exports.forgotPassword = async (req, res) => {

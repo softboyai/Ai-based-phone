@@ -112,7 +112,10 @@
                 <div class="stat-box s3"><div class="val" id="ss-instock">0</div> <div class="lbl">Seller Phones In Stock</div></div>
             </div>
             <div class="card">
-                <h3>🛒 Registered Sellers</h3>
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+                    <h3 style="margin:0;">🛒 Registered Sellers</h3>
+                    <button class="abtn abtn-add" onclick="openAddUserModal('seller')">➕ Add Seller</button>
+                </div>
                 <div class="tbl-wrap">
                     <table class="dtable">
                         <thead><tr><th>Full Name</th><th>Email</th><th>Phones Listed</th><th>In Stock</th><th>Status</th><th>Registered</th><th>Actions</th></tr></thead>
@@ -125,7 +128,10 @@
         <!-- PANEL: Customers -->
         <div id="p-users" class="panel">
             <div class="card">
-                <h3>👥 Registered Customers</h3>
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+                    <h3 style="margin:0;">👥 Registered Customers</h3>
+                    <button class="abtn abtn-add" onclick="openAddUserModal('customer')">➕ Add Customer</button>
+                </div>
                 <div class="tbl-wrap">
                     <table class="dtable">
                         <thead><tr><th>Full Name</th><th>Email</th><th>Role</th><th>Status</th><th>Registered</th><th>Actions</th></tr></thead>
@@ -189,6 +195,74 @@
         </div>
     </div><!-- /.main -->
 </div><!-- /.admin-wrap -->
+
+<!-- Add User Modal -->
+<div id="add-user-modal" class="modal-bg">
+    <div class="modal-box">
+        <button class="close-x" onclick="closeAddUserModal()">&times;</button>
+        <h3 id="add-user-modal-title">➕ Add New User</h3>
+        <form id="frm-add-user" class="fgrid" onsubmit="submitAddUser(event)">
+            <input type="hidden" id="au-role-hidden">
+            <div class="fw">
+                <label>Full Name *</label>
+                <input type="text" id="au-name" placeholder="e.g. Jean Dupont" required>
+            </div>
+            <div class="fw">
+                <label>Email Address *</label>
+                <input type="email" id="au-email" placeholder="e.g. user@example.com" required>
+            </div>
+            <div class="fw">
+                <label>Role *</label>
+                <select id="au-role">
+                    <option value="seller">Seller</option>
+                    <option value="customer">Customer</option>
+                </select>
+            </div>
+            <div class="fw">
+                <label>Password *</label>
+                <input type="password" id="au-password" placeholder="Min 8 chars, upper+lower+number+special" required>
+                <small style="color:#888;font-size:0.75rem;">Must include uppercase, lowercase, number and special character (!@#$%^&*)</small>
+            </div>
+            <div class="fw">
+                <button type="submit" class="btn-sub">➕ Create Account</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Edit User Modal -->
+<div id="edit-user-modal" class="modal-bg">
+    <div class="modal-box">
+        <button class="close-x" onclick="closeEditUserModal()">&times;</button>
+        <h3>✏️ Edit User</h3>
+        <form id="frm-edit-user" class="fgrid" onsubmit="submitEditUser(event)">
+            <input type="hidden" id="eu-id">
+            <div class="fw">
+                <label>Full Name</label>
+                <input type="text" id="eu-name" required>
+            </div>
+            <div class="fw">
+                <label>Email Address</label>
+                <input type="email" id="eu-email" required>
+            </div>
+            <div class="fw">
+                <label>Role</label>
+                <select id="eu-role">
+                    <option value="seller">Seller</option>
+                    <option value="customer">Customer</option>
+                </select>
+            </div>
+            <div class="fw">
+                <label>New Password <small style="color:#888;font-weight:400;">(leave blank to keep current)</small></label>
+                <input type="password" id="eu-password" placeholder="Enter new password to change it">
+                <small style="color:#888;font-size:0.75rem;">If changing: 8+ chars, upper+lower+number+special character</small>
+            </div>
+            <div class="fw">
+                <button type="submit" class="btn-sub btn-orange">💾 Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
 
 <!-- Edit Phone Modal -->
 <div id="edit-modal" class="modal-bg">
