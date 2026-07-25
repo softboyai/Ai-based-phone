@@ -4,7 +4,7 @@
 
 A **web application** that helps customers of KT Phones find the best mobile phone based on their preferences using an **AI-based recommendation engine** (rule-based scoring algorithm).
 
-**Case Study:** KT Phones — a single mobile phone shop that uses this system to manage its phone catalog and help walk-in or online customers choose the right phone through AI-powered recommendations.
+**KT Phones** is a single mobile phone shop that uses this system to manage its phone catalog and help walk-in or online customers choose the right phone through AI-powered recommendations.
 
 The system has three user roles, each with a distinct responsibility:
 

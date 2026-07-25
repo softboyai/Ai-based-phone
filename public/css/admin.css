@@ -9,9 +9,22 @@ body { font-family:'Poppins',sans-serif; background:#f0f2f5; }
 
 /* ── Sidebar ────────────────────────────────────────────── */
 .sidebar { width:260px; background:linear-gradient(180deg,#1a237e 0%,#0d1452 100%); position:fixed; top:0; left:0; height:100vh; z-index:100; display:flex; flex-direction:column; }
-.sidebar-brand { padding:30px 20px 20px; text-align:center; border-bottom:1px solid rgba(255,255,255,0.08); }
-.sidebar-brand h2 { color:#ff6f00; font-size:1.3rem; }
-.sidebar-brand small { color:rgba(255,255,255,0.6); font-size:0.7rem; }
+.sidebar-brand { padding:22px 18px 18px; text-align:center; border-bottom:1px solid rgba(255,255,255,0.1); }
+.brand-logo { font-size:2.2rem; margin-bottom:6px; line-height:1; }
+.sidebar-brand h2 { color:#ff6f00; font-size:1.25rem; font-weight:700; margin-bottom:4px; }
+.brand-project { color:#fff; font-size:0.72rem; font-weight:600; letter-spacing:0.3px; margin-bottom:3px; line-height:1.3; }
+.brand-case { color:rgba(255,255,255,0.55); font-size:0.65rem; font-style:italic; margin-bottom:8px; }
+.brand-role-badge { display:inline-block; background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.2); color:#fff; font-size:0.68rem; font-weight:600; padding:3px 10px; border-radius:20px; letter-spacing:0.5px; }
+.brand-role-badge.seller-badge { background:rgba(255,111,0,0.25); border-color:rgba(255,111,0,0.5); color:#ffcc80; }
+
+/* ── Project Banner ─────────────────────────────────────── */
+.project-banner { background:linear-gradient(135deg,#1a237e 0%,#283593 60%,#1565c0 100%); color:#fff; border-radius:12px; padding:14px 20px; margin-bottom:18px; display:flex; align-items:center; justify-content:space-between; gap:12px; box-shadow:0 4px 14px rgba(26,35,126,0.25); }
+.project-banner-left { display:flex; flex-direction:column; gap:3px; }
+.project-banner-title { font-size:1rem; font-weight:700; letter-spacing:0.2px; }
+.project-banner-sub { font-size:0.72rem; color:rgba(255,255,255,0.7); font-style:italic; }
+.project-banner-role { font-size:0.75rem; font-weight:600; padding:5px 14px; border-radius:20px; white-space:nowrap; }
+.admin-role  { background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.3); color:#fff; }
+.seller-role { background:rgba(255,111,0,0.35); border:1px solid rgba(255,111,0,0.5); color:#ffcc80; }
 .sidebar-menu { flex:1; padding:20px 0; overflow-y:auto; }
 .sidebar-menu a { display:flex; align-items:center; gap:12px; padding:13px 25px; color:rgba(255,255,255,0.8); font-size:0.88rem; transition:all 0.3s; border-left:3px solid transparent; cursor:pointer; text-decoration:none; }
 .sidebar-menu a:hover { background:rgba(255,255,255,0.08); color:#fff; }
@@ -109,6 +122,8 @@ body { font-family:'Poppins',sans-serif; background:#f0f2f5; }
     .stats { grid-template-columns:repeat(2,1fr); }
     .fgrid { grid-template-columns:1fr; }
     .fgrid .fw { grid-column:span 1; }
+    .project-banner { flex-direction:column; align-items:flex-start; gap:8px; }
+    .project-banner-title { font-size:0.88rem; }
 }
 
 .insight-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
