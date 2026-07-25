@@ -27,6 +27,9 @@ router.get('/session', authController.getSession);
 // Get all users (admin only)
 router.get('/users', authController.getAllUsers);
 
+// Activate or deactivate a user (admin only)
+router.put('/users/:id/status', authController.updateUserStatus);
+
 // Forgot password - reset password
 router.post('/forgot-password', authController.forgotPassword);
 

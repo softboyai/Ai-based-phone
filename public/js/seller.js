@@ -9,13 +9,18 @@ const API = '/api';
 window.addEventListener('DOMContentLoaded', async () => {
     const res  = await fetch(API + '/auth/session');
     const data = await res.json();
-    if (!data.loggedIn || (data.user.role !== 'seller' && data.user.role !== 'admin')) {
+    if (!data.loggedIn || data.user.role !== 'seller') {
         window.location.href = '/login';
         return;
     }
-    // Greeting
+    // Greeting + sidebar user info
     const greet = document.getElementById('seller-greeting');
     if (greet) greet.textContent = `📦 Welcome, ${data.user.fullName}`;
+    const navUser = document.getElementById('seller-nav-user');
+    if (navUser) navUser.textContent = `👤 ${data.user.fullName}`;
+    // Show admin link only if user also carries admin role (future-proof)
+    const adminLink = document.getElementById('seller-nav-admin');
+    if (adminLink) adminLink.style.display = data.user.role === 'admin' ? 'block' : 'none';
 
     await loadSellerListings();
     setupAddForm();
@@ -47,6 +52,7 @@ async function loadSellerListings() {
         if (s) s.textContent = phones.length;
         if (i) i.textContent = phones.filter(p => p.inStock).length;
         if (o) o.textContent = phones.filter(p => !p.inStock).length;
+        updateAiReadiness(phones);
 
         if (!phones.length) {
             tb.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:20px;color:#888;">No listings yet. Add your first phone above.</td></tr>';
@@ -72,6 +78,41 @@ async function loadSellerListings() {
     } catch (e) {
         tb.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#c62828;">Error loading listings.</td></tr>';
     }
+}
+
+function updateAiReadiness(phones) {
+    const readyEl = document.getElementById('seller-stat-ai-ready');
+    const usageEl = document.getElementById('seller-stat-top-usage');
+    const missingEl = document.getElementById('seller-stat-missing');
+    if (!readyEl || !usageEl || !missingEl) return;
+
+    if (!phones.length) {
+        readyEl.textContent = '0%';
+        usageEl.textContent = '-';
+        missingEl.textContent = '0';
+        return;
+    }
+
+    const isReady = phone =>
+        phone.inStock &&
+        phone.ram &&
+        phone.storage &&
+        phone.battery &&
+        phone.camera &&
+        phone.description &&
+        Array.isArray(phone.usageType) &&
+        phone.usageType.length > 0;
+
+    const readyCount = phones.filter(isReady).length;
+    const usageCounts = {};
+    phones.forEach(phone => (phone.usageType || []).forEach(type => {
+        usageCounts[type] = (usageCounts[type] || 0) + 1;
+    }));
+    const topUsage = Object.entries(usageCounts).sort((a, b) => b[1] - a[1])[0];
+
+    readyEl.textContent = Math.round((readyCount / phones.length) * 100) + '%';
+    usageEl.textContent = topUsage ? topUsage[0] : '-';
+    missingEl.textContent = phones.length - readyCount;
 }
 
 // ── Add Phone form ───────────────────────────────────────────

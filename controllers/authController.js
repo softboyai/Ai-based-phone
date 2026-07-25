@@ -126,6 +126,10 @@ exports.login = async (req, res) => {
             return res.status(401).json({ message: 'Invalid email or password' });
         }
 
+        if (user.isActive === false) {
+            return res.status(403).json({ message: 'Your account has been deactivated. Please contact the administrator.' });
+        }
+
         // Compare entered password with stored hashed password
         const isMatch = await user.comparePassword(password);
         if (!isMatch) {
@@ -143,7 +147,8 @@ exports.login = async (req, res) => {
                 id: user._id,
                 fullName: user.fullName,
                 email: user.email,
-                role: user.role
+                role: user.role,
+                isActive: user.isActive !== false
             }
         });
 
@@ -169,8 +174,14 @@ exports.logout = (req, res) => {
 // ============================================================
 // GET CURRENT USER SESSION INFO
 // ============================================================
-exports.getSession = (req, res) => {
+exports.getSession = async (req, res) => {
     if (req.session.userId) {
+        const user = await User.findById(req.session.userId).select('isActive');
+        if (!user || user.isActive === false) {
+            req.session.destroy(() => {});
+            return res.status(200).json({ loggedIn: false });
+        }
+
         res.status(200).json({
             loggedIn: true,
             user: {
@@ -200,6 +211,44 @@ exports.getAllUsers = async (req, res) => {
     } catch (error) {
         console.error('Error fetching users:', error);
         res.status(500).json({ message: 'Error fetching users' });
+    }
+};
+
+// ============================================================
+// UPDATE USER ACTIVE STATUS (Admin Only)
+// ============================================================
+exports.updateUserStatus = async (req, res) => {
+    try {
+        if (req.session.userRole !== 'admin') {
+            return res.status(403).json({ message: 'Access denied. Admin only.' });
+        }
+
+        const { isActive } = req.body;
+        if (typeof isActive !== 'boolean') {
+            return res.status(400).json({ message: 'isActive must be true or false' });
+        }
+
+        if (req.params.id === req.session.userId.toString() && isActive === false) {
+            return res.status(400).json({ message: 'You cannot deactivate your own admin account.' });
+        }
+
+        const user = await User.findByIdAndUpdate(
+            req.params.id,
+            { isActive },
+            { new: true, runValidators: true }
+        ).select('-password');
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        res.status(200).json({
+            message: isActive ? 'User activated successfully' : 'User deactivated successfully',
+            user
+        });
+    } catch (error) {
+        console.error('Error updating user status:', error);
+        res.status(500).json({ message: 'Error updating user status' });
     }
 };
 

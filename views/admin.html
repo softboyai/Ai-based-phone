@@ -29,7 +29,10 @@
             <a onclick="switchPanel('reports',this)">📈 Reports</a>
         </nav>
         <div class="sidebar-bottom">
-            <a href="/">← Back to Website</a>
+            <span id="admin-nav-user" style="display:block;padding:8px 16px;font-size:0.8rem;color:#90caf9;font-weight:600;"></span>
+            <a href="/">🏠 Back to Website</a>
+            <a href="/seller" id="admin-nav-seller" style="display:none;">🛒 Seller Dashboard</a>
+            <a href="#" onclick="adminLogout()">🚪 Logout</a>
         </div>
     </aside>
 
@@ -55,13 +58,22 @@
                 <div id="chart-brand" class="chart-box"></div>
             </div>
             <div class="card">
+                <h3>AI Recommendation Confidence</h3>
+                <div class="insight-grid">
+                    <div class="insight-box"><span id="ai-avg-score">0%</span><small>Average match score</small></div>
+                    <div class="insight-box"><span id="ai-top-usage">-</span><small>Most requested usage</small></div>
+                    <div class="insight-box"><span id="ai-stock-ready">0%</span><small>Inventory AI-ready</small></div>
+                </div>
+                <p class="mini-copy">The recommendation engine scores phones using budget, brand, usage needs, and hardware features, then stores the reasons for each result.</p>
+            </div>
+            <div class="card">
                 <h3>ℹ️ Role Responsibilities</h3>
                 <table class="dtable">
                     <thead><tr><th>Role</th><th>Can Do</th><th>Cannot Do</th></tr></thead>
                     <tbody>
                         <tr><td><span class="role-badge" style="background:#c62828;">admin</span></td>
-                            <td>Monitor system, manage all phones, view all users, generate reports</td>
-                            <td>Cannot self-register — set manually in database</td></tr>
+                            <td>Monitor system, view all phones, edit/delete listings, view users, generate reports</td>
+                            <td>Cannot add phones; cannot self-register — set manually in database</td></tr>
                         <tr><td><span class="role-badge" style="background:#ff6f00;">seller</span></td>
                             <td>Add, edit, delete their own phone listings</td>
                             <td>Cannot access admin panel, reports, or other users' data</td></tr>
@@ -103,8 +115,8 @@
                 <h3>🛒 Registered Sellers</h3>
                 <div class="tbl-wrap">
                     <table class="dtable">
-                        <thead><tr><th>Full Name</th><th>Email</th><th>Phones Listed</th><th>In Stock</th><th>Registered</th></tr></thead>
-                        <tbody id="tb-sellers"><tr><td colspan="5" style="text-align:center;padding:25px;">Loading...</td></tr></tbody>
+                        <thead><tr><th>Full Name</th><th>Email</th><th>Phones Listed</th><th>In Stock</th><th>Status</th><th>Registered</th><th>Actions</th></tr></thead>
+                        <tbody id="tb-sellers"><tr><td colspan="7" style="text-align:center;padding:25px;">Loading...</td></tr></tbody>
                     </table>
                 </div>
             </div>
@@ -116,8 +128,8 @@
                 <h3>👥 Registered Customers</h3>
                 <div class="tbl-wrap">
                     <table class="dtable">
-                        <thead><tr><th>Full Name</th><th>Email</th><th>Role</th><th>Registered</th></tr></thead>
-                        <tbody id="tb-users"><tr><td colspan="4" style="text-align:center;padding:25px;">Loading...</td></tr></tbody>
+                        <thead><tr><th>Full Name</th><th>Email</th><th>Role</th><th>Status</th><th>Registered</th><th>Actions</th></tr></thead>
+                        <tbody id="tb-users"><tr><td colspan="6" style="text-align:center;padding:25px;">Loading...</td></tr></tbody>
                     </table>
                 </div>
             </div>
@@ -129,8 +141,8 @@
                 <h3>🤖 AI Recommendation History</h3>
                 <div class="tbl-wrap">
                     <table class="dtable">
-                        <thead><tr><th>Customer</th><th>Budget</th><th>Brand</th><th>Usage</th><th>Recommended Phones</th><th>Date</th></tr></thead>
-                        <tbody id="tb-recs"><tr><td colspan="6" style="text-align:center;padding:25px;">Loading...</td></tr></tbody>
+                        <thead><tr><th>Customer</th><th>Budget</th><th>Brand</th><th>Usage</th><th>Recommended Phones</th><th>AI Reason</th><th>Date</th></tr></thead>
+                        <tbody id="tb-recs"><tr><td colspan="7" style="text-align:center;padding:25px;">Loading...</td></tr></tbody>
                     </table>
                 </div>
             </div>

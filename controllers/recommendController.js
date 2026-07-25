@@ -26,8 +26,9 @@ const BUDGET_RANGES = {
 // ============================================================
 // AI SCORING FUNCTION
 // ============================================================
-function calculateScore(phone, preferences) {
+function calculateRecommendation(phone, preferences) {
     let score = 0;
+    const breakdown = [];
 
     // --- BUDGET MATCH (30 points) ---
     const budgetRange = BUDGET_RANGES[preferences.budget];
@@ -35,9 +36,13 @@ function calculateScore(phone, preferences) {
         if (phone.price >= budgetRange.min && phone.price <= budgetRange.max) {
             // Phone price falls within selected budget range = 30 points
             score += 30;
+            breakdown.push({ label: 'Budget match', points: 30, reason: 'Price is inside the customer budget range.' });
         } else if (phone.price > budgetRange.max && phone.price <= budgetRange.max * 1.3) {
             // Phone price is slightly above range (within 30% over) = 10 points
             score += 10;
+            breakdown.push({ label: 'Near budget', points: 10, reason: 'Price is slightly above the selected budget but still close.' });
+        } else {
+            breakdown.push({ label: 'Budget match', points: 0, reason: 'Price is outside the selected budget range.' });
         }
         // Phone price is way above range = 0 points
     }
@@ -46,9 +51,13 @@ function calculateScore(phone, preferences) {
     if (preferences.brand === 'any' || preferences.brand === 'Any') {
         // Customer selected "Any" = 20 points for all phones
         score += 20;
+        breakdown.push({ label: 'Brand flexibility', points: 20, reason: 'Customer accepts any brand.' });
     } else if (phone.brand.toLowerCase() === preferences.brand.toLowerCase()) {
         // Phone brand matches selected brand = 20 points
         score += 20;
+        breakdown.push({ label: 'Brand match', points: 20, reason: `${phone.brand} matches the requested brand.` });
+    } else {
+        breakdown.push({ label: 'Brand match', points: 0, reason: `${phone.brand} is different from the requested brand.` });
     }
     // Phone brand does not match = 0 points
 
@@ -63,37 +72,62 @@ function calculateScore(phone, preferences) {
             }
         });
     }
-    score += Math.min(usagePoints, 30); // Cap at 30 points
+    usagePoints = Math.min(usagePoints, 30);
+    score += usagePoints; // Cap at 30 points
+    breakdown.push({
+        label: 'Usage match',
+        points: usagePoints,
+        reason: usagePoints > 0
+            ? `Matches ${usagePoints / 10} selected usage need(s).`
+            : 'No selected usage needs matched this phone.'
+    });
 
     // --- FEATURE MATCH (20 points) ---
     if (preferences.features && preferences.features.length > 0) {
+        let featurePoints = 0;
         preferences.features.forEach(feature => {
             switch (feature.toLowerCase()) {
                 case 'long battery':
                     // Long battery: phone battery >= 4500mAh = 5 points
-                    if (phone.battery >= 4500) score += 5;
+                    if (phone.battery >= 4500) featurePoints += 5;
                     break;
                 case 'high storage':
                     // High storage: phone storage >= 128GB = 5 points
-                    if (phone.storage >= 128) score += 5;
+                    if (phone.storage >= 128) featurePoints += 5;
                     break;
                 case 'good camera':
                     // Good camera: phone camera >= 48MP = 5 points
-                    if (phone.camera >= 48) score += 5;
+                    if (phone.camera >= 48) featurePoints += 5;
                     break;
                 case 'large ram':
                     // Large RAM: phone RAM >= 6GB = 5 points
-                    if (phone.ram >= 6) score += 5;
+                    if (phone.ram >= 6) featurePoints += 5;
                     break;
                 case 'slim design':
                     // Slim design: give 5 points (all phones considered slim for simplicity)
-                    score += 5;
+                    featurePoints += 5;
                     break;
             }
         });
+        score += featurePoints;
+        breakdown.push({
+            label: 'Feature match',
+            points: featurePoints,
+            reason: featurePoints > 0
+                ? 'Selected hardware preferences were found in this phone.'
+                : 'Selected hardware preferences were not strongly matched.'
+        });
+    } else {
+        breakdown.push({ label: 'Feature match', points: 0, reason: 'No extra feature preferences were selected.' });
     }
 
-    return score;
+    const reasons = breakdown
+        .filter(item => item.points > 0)
+        .sort((a, b) => b.points - a.points)
+        .slice(0, 3)
+        .map(item => item.reason);
+
+    return { score, breakdown, reasons };
 }
 
 // ============================================================
@@ -124,10 +158,14 @@ exports.getRecommendations = async (req, res) => {
         };
 
         // Score each phone using the AI scoring algorithm
-        const scoredPhones = phones.map(phone => ({
-            phone,
-            score: calculateScore(phone, preferences)
-        }));
+        const scoredPhones = phones.map(phone => {
+            const ai = calculateRecommendation(phone, preferences);
+            return {
+                phone,
+                score: ai.score,
+                explanation: ai
+            };
+        });
 
         // Sort phones by score in descending order
         scoredPhones.sort((a, b) => b.score - a.score);
@@ -142,7 +180,9 @@ exports.getRecommendations = async (req, res) => {
                 preferences,
                 recommendedPhones: top3.map(item => ({
                     phone: item.phone._id,
-                    score: item.score
+                    score: item.score,
+                    reasons: item.explanation.reasons,
+                    breakdown: item.explanation.breakdown
                 }))
             });
             await recommendation.save();
@@ -151,7 +191,9 @@ exports.getRecommendations = async (req, res) => {
         // Return top 3 phones with their match percentage
         const results = top3.map(item => ({
             phone: item.phone,
-            matchPercentage: item.score
+            matchPercentage: item.score,
+            reasons: item.explanation.reasons,
+            breakdown: item.explanation.breakdown
         }));
 
         res.status(200).json({

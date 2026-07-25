@@ -33,6 +33,10 @@ const userSchema = new mongoose.Schema({
         enum: ['admin', 'seller', 'customer'],
         default: 'customer'
     },
+    isActive: {
+        type: Boolean,
+        default: true
+    },
     createdAt: {
         type: Date,
         default: Date.now

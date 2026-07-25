@@ -4,7 +4,7 @@
  * - GET  /api/phones          - Get all phones (public)
  * - GET  /api/phones/featured - Get featured phones (public)
  * - GET  /api/phones/:id      - Get single phone (public)
- * - POST /api/phones          - Add a phone (admin or seller)
+ * - POST /api/phones          - Add a phone (seller only)
  * - PUT  /api/phones/:id      - Update a phone (admin or owner seller)
  * - DELETE /api/phones/:id    - Delete a phone (admin or owner seller)
  */
@@ -14,7 +14,7 @@ const router = express.Router();
 const multer = require('multer');
 const path = require('path');
 const phoneController = require('../controllers/phoneController');
-const { isAdmin, isAdminOrSeller } = require('../middleware/auth');
+const { isAdminOrSeller, isSeller } = require('../middleware/auth');
 
 // ============================================================
 // MULTER CONFIGURATION FOR IMAGE UPLOADS
@@ -50,8 +50,8 @@ router.get('/featured', phoneController.getFeaturedPhones);
 router.get('/my-listings', isAdminOrSeller, phoneController.getMyPhones);
 router.get('/:id', phoneController.getPhoneById);
 
-// Admin or Seller: add phone
-router.post('/', isAdminOrSeller, upload.single('image'), (req, res, next) => {    if (req.fileValidationError) {
+// Seller only: add phone
+router.post('/', isSeller, upload.single('image'), (req, res, next) => {    if (req.fileValidationError) {
         return res.status(400).json({ message: req.fileValidationError });
     }
     next();

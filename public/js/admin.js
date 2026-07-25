@@ -15,6 +15,13 @@ window.addEventListener('DOMContentLoaded', async () => {
         window.location.href = '/login';
         return;
     }
+    // Populate sidebar user info
+    const navUser = document.getElementById('admin-nav-user');
+    if (navUser) navUser.textContent = `👤 ${data.user.fullName}`;
+    // Admin can also be a seller in some configs — hide seller link for pure admins
+    const sellerLink = document.getElementById('admin-nav-seller');
+    if (sellerLink) sellerLink.style.display = 'none';
+
     await loadAll();
     setupEditForm();
 });
@@ -49,6 +56,7 @@ async function loadAll() {
         if (rRes.ok) allRecs  = await rRes.json();
 
         updateDashboardStats();
+        updateAiConfidence();
         renderPhones();
         renderSellers();
         renderCustomers();
@@ -58,6 +66,32 @@ async function loadAll() {
     } catch (e) {
         console.error('Admin load error:', e);
     }
+}
+
+function updateAiConfidence() {
+    const avgEl = document.getElementById('ai-avg-score');
+    const usageEl = document.getElementById('ai-top-usage');
+    const readyEl = document.getElementById('ai-stock-ready');
+    if (!avgEl || !usageEl || !readyEl) return;
+
+    const scored = allRecs.flatMap(rec => rec.recommendedPhones || []).filter(item => typeof item.score === 'number');
+    const avg = scored.length ? Math.round(scored.reduce((sum, item) => sum + item.score, 0) / scored.length) : 0;
+
+    const usageCounts = {};
+    allRecs.forEach(rec => (rec.preferences?.usage || []).forEach(type => {
+        usageCounts[type] = (usageCounts[type] || 0) + 1;
+    }));
+    const topUsage = Object.entries(usageCounts).sort((a, b) => b[1] - a[1])[0];
+
+    const inStock = allPhones.filter(phone => phone.inStock);
+    const ready = inStock.filter(phone =>
+        phone.ram && phone.storage && phone.battery && phone.camera &&
+        phone.description && Array.isArray(phone.usageType) && phone.usageType.length > 0
+    );
+
+    avgEl.textContent = avg + '%';
+    usageEl.textContent = topUsage ? topUsage[0] : '-';
+    readyEl.textContent = inStock.length ? Math.round((ready.length / inStock.length) * 100) + '%' : '0%';
 }
 
 // ── Dashboard stats ─────────────────────────────────────────
@@ -110,7 +144,7 @@ function renderSellers() {
 
     const tb = document.getElementById('tb-sellers');
     if (!sellers.length) {
-        tb.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;color:#888;">No sellers registered yet.</td></tr>';
+        tb.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:20px;color:#888;">No sellers registered yet.</td></tr>';
         return;
     }
     tb.innerHTML = sellers.map(s => {
@@ -121,7 +155,9 @@ function renderSellers() {
             <td>${s.email}</td>
             <td>${sPhones.length}</td>
             <td>${sInStock}</td>
+            <td>${statusBadge(s)}</td>
             <td>${new Date(s.createdAt).toLocaleDateString()}</td>
+            <td>${statusButton(s)}</td>
         </tr>`;
     }).join('');
 }
@@ -132,32 +168,75 @@ function renderCustomers() {
     const customers = allUsers.filter(u => u.role === 'customer');
     const tb = document.getElementById('tb-users');
     if (!customers.length) {
-        tb.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px;color:#888;">No customers registered yet.</td></tr>';
+        tb.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:#888;">No customers registered yet.</td></tr>';
         return;
     }
     tb.innerHTML = customers.map(u => `<tr>
         <td>${u.fullName}</td>
         <td>${u.email}</td>
         <td><span class="role-badge" style="background:#1a237e;">customer</span></td>
+        <td>${statusBadge(u)}</td>
         <td>${new Date(u.createdAt).toLocaleDateString()}</td>
+        <td>${statusButton(u)}</td>
     </tr>`).join('');
+}
+
+function statusBadge(user) {
+    const active = user.isActive !== false;
+    return active
+        ? '<span class="role-badge" style="background:#2e7d32;">Active</span>'
+        : '<span class="role-badge" style="background:#c62828;">Deactivated</span>';
+}
+
+function statusButton(user) {
+    const active = user.isActive !== false;
+    const label = active ? 'Deactivate' : 'Activate';
+    const cls = active ? 'abtn-del' : 'abtn-edit';
+    return `<button class="abtn ${cls}" onclick="toggleUserStatus('${user._id}', ${!active})">${label}</button>`;
+}
+
+async function toggleUserStatus(id, isActive) {
+    const action = isActive ? 'activate' : 'deactivate';
+    if (!confirm(`Are you sure you want to ${action} this user?`)) return;
+
+    try {
+        const res = await fetch(`${API}/auth/users/${id}/status`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ isActive })
+        });
+        const data = await res.json();
+        if (res.ok) {
+            showMsg(data.message, 'ok');
+            loadAll();
+        } else {
+            showMsg(data.message || 'Unable to update user status', 'err');
+        }
+    } catch (e) {
+        showMsg('Network error', 'err');
+    }
 }
 
 // ── Recommendations table ────────────────────────────────────
 function renderRecs() {
     const tb = document.getElementById('tb-recs');
     if (!allRecs.length) {
-        tb.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;">No recommendations yet.</td></tr>';
+        tb.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:20px;">No recommendations yet.</td></tr>';
         return;
     }
-    tb.innerHTML = allRecs.map(r => `<tr>
+    tb.innerHTML = allRecs.map(r => {
+        const top = (r.recommendedPhones || [])[0];
+        const reason = top && top.reasons && top.reasons.length ? top.reasons[0] : 'Older record without stored reason';
+        return `<tr>
         <td>${r.userId ? r.userId.fullName : 'Unknown'}</td>
         <td>${r.preferences.budget}</td>
         <td>${r.preferences.brand}</td>
         <td>${(r.preferences.usage || []).join(', ')}</td>
         <td>${r.recommendedPhones.map(rp => rp.phone ? rp.phone.name : 'N/A').join(', ')}</td>
+        <td>${reason}</td>
         <td>${new Date(r.createdAt).toLocaleDateString()}</td>
-    </tr>`).join('');
+    </tr>`;
+    }).join('');
 }
 
 // ── Charts ───────────────────────────────────────────────────
@@ -285,4 +364,9 @@ function showMsg(text, type) {
     el.className     = 'msg ' + (type === 'ok' ? 'msg-ok' : 'msg-err');
     el.style.display = 'block';
     setTimeout(() => { el.style.display = 'none'; }, 4000);
+}
+
+async function adminLogout() {
+    await fetch('/api/auth/logout');
+    window.location.href = '/login';
 }

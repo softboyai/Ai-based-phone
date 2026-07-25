@@ -73,84 +73,71 @@ async function checkSession() {
 }
 
 /**
- * Update navigation bar for logged-in users
+ * Update navigation bar for logged-in users.
+ * Works with pre-placed hidden placeholder anchors in every page's nav-links.
  */
 function updateNavForLoggedIn(user) {
     const navLinks = document.querySelector('.nav-links');
     if (!navLinks) return;
 
-    // Find or create user info and logout elements
-    let userInfo = document.getElementById('nav-user-info');
-    let logoutLink = document.getElementById('nav-logout');
-    let loginLink = document.getElementById('nav-login');
+    const loginLink    = document.getElementById('nav-login');
+    const userInfo     = document.getElementById('nav-user-info');
+    const logoutLink   = document.getElementById('nav-logout');
+    const adminLink    = document.getElementById('nav-admin');
+    const sellerLink   = document.getElementById('nav-seller');
+    const customerLink = document.getElementById('nav-customer');
 
-    // Hide login link
-    if (loginLink) loginLink.style.display = 'none';
-
-    // Show user info
-    if (!userInfo) {
-        userInfo = document.createElement('span');
-        userInfo.id = 'nav-user-info';
-        userInfo.className = 'nav-user';
-        navLinks.appendChild(userInfo);
+    // Hide login, show user greeting
+    if (loginLink)  loginLink.style.display  = 'none';
+    if (userInfo) {
+        userInfo.textContent = `Hi, ${user.fullName}`;
+        userInfo.style.display = 'inline';
     }
-    userInfo.textContent = `Hi, ${user.fullName}`;
-    userInfo.style.display = 'inline';
 
-    // Show admin link if user is admin
-    let adminLink = document.getElementById('nav-admin');
+    // Always show logout
+    if (logoutLink) {
+        logoutLink.style.display = 'inline';
+        // Attach once
+        if (!logoutLink.dataset.bound) {
+            logoutLink.addEventListener('click', handleLogout);
+            logoutLink.dataset.bound = '1';
+        }
+    }
+
+    // Role-specific links
     if (user.role === 'admin') {
-        if (!adminLink) {
-            adminLink = document.createElement('a');
-            adminLink.id = 'nav-admin';
-            adminLink.href = '/admin';
-            adminLink.textContent = 'Admin Panel';
-            navLinks.insertBefore(adminLink, userInfo);
-        }
-        adminLink.style.display = 'inline';
+        if (adminLink)    { adminLink.style.display    = 'inline'; }
+        if (sellerLink)   { sellerLink.style.display   = 'none';   }
+        if (customerLink) { customerLink.style.display = 'none';   }
+    } else if (user.role === 'seller') {
+        if (sellerLink)   { sellerLink.style.display   = 'inline'; }
+        if (adminLink)    { adminLink.style.display     = 'none';   }
+        if (customerLink) { customerLink.style.display  = 'none';   }
+    } else {
+        // customer (or any other role)
+        if (customerLink) { customerLink.style.display = 'inline'; }
+        if (adminLink)    { adminLink.style.display    = 'none';    }
+        if (sellerLink)   { sellerLink.style.display   = 'none';    }
     }
-
-    // Show seller dashboard link if user is seller
-    let sellerLink = document.getElementById('nav-seller');
-    if (user.role === 'seller') {
-        if (!sellerLink) {
-            sellerLink = document.createElement('a');
-            sellerLink.id = 'nav-seller';
-            sellerLink.href = '/seller';
-            sellerLink.textContent = 'My Dashboard';
-            navLinks.insertBefore(sellerLink, userInfo);
-        }
-        sellerLink.style.display = 'inline';
-    }
-
-    // Show logout link
-    if (!logoutLink) {
-        logoutLink = document.createElement('a');
-        logoutLink.id = 'nav-logout';
-        logoutLink.href = '#';
-        logoutLink.textContent = 'Logout';
-        logoutLink.addEventListener('click', handleLogout);
-        navLinks.appendChild(logoutLink);
-    }
-    logoutLink.style.display = 'inline';
 }
 
 /**
- * Update navigation bar for logged-out users
+ * Update navigation bar for logged-out users.
  */
 function updateNavForLoggedOut() {
-    const loginLink = document.getElementById('nav-login');
-    const userInfo = document.getElementById('nav-user-info');
-    const logoutLink = document.getElementById('nav-logout');
-    const adminLink = document.getElementById('nav-admin');
+    const loginLink    = document.getElementById('nav-login');
+    const userInfo     = document.getElementById('nav-user-info');
+    const logoutLink   = document.getElementById('nav-logout');
+    const adminLink    = document.getElementById('nav-admin');
+    const sellerLink   = document.getElementById('nav-seller');
+    const customerLink = document.getElementById('nav-customer');
 
-    if (loginLink) loginLink.style.display = 'inline';
-    if (userInfo) userInfo.style.display = 'none';
-    if (logoutLink) logoutLink.style.display = 'none';
-    if (adminLink) adminLink.style.display = 'none';
-
-    const sellerLink = document.getElementById('nav-seller');
-    if (sellerLink) sellerLink.style.display = 'none';
+    if (loginLink)    loginLink.style.display    = 'inline';
+    if (userInfo)     userInfo.style.display     = 'none';
+    if (logoutLink)   logoutLink.style.display   = 'none';
+    if (adminLink)    adminLink.style.display    = 'none';
+    if (sellerLink)   sellerLink.style.display   = 'none';
+    if (customerLink) customerLink.style.display = 'none';
 }
 
 /**
@@ -535,6 +522,21 @@ function displayResults() {
                         <span>${phone.camera}MP Camera</span>
                     </div>
                     <span class="match-badge ${matchClass}">${matchPercentage}% Match</span>
+                    <div class="ai-explain">
+                        <h4>Why the AI chose this phone</h4>
+                        <ul>
+                            ${(item.reasons && item.reasons.length ? item.reasons : ['Best overall score from your selected budget, brand, usage, and features.'])
+                                .map(reason => `<li>${reason}</li>`).join('')}
+                        </ul>
+                        <div class="score-breakdown">
+                            ${(item.breakdown || []).map(part => `
+                                <div class="score-row">
+                                    <span>${part.label}</span>
+                                    <strong>${part.points} pts</strong>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
                     ${phone.description ? `<p style="margin-top:10px; font-size:0.85rem; color:#666;">${phone.description}</p>` : ''}
                 </div>
             </div>

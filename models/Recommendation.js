@@ -39,7 +39,13 @@ const recommendationSchema = new mongoose.Schema({
         },
         score: {
             type: Number
-        }
+        },
+        reasons: [String],
+        breakdown: [{
+            label: String,
+            points: Number,
+            reason: String
+        }]
     }],
     createdAt: {
         type: Date,

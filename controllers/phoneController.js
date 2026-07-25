@@ -2,7 +2,8 @@
  * Phone Controller
  * 
  * Handles all CRUD operations for phones.
- * Admin-only operations: add, edit, delete.
+ * Admin operations: view, edit, and delete all phones.
+ * Seller operations: add phones, edit/delete their own listings.
  * Public operations: get all phones.
  */
 
@@ -69,7 +70,7 @@ exports.getPhoneById = async (req, res) => {
 };
 
 // ============================================================
-// ADD A NEW PHONE (Admin or Seller)
+// ADD A NEW PHONE (Seller Only)
 // ============================================================
 exports.addPhone = async (req, res) => {
     try {

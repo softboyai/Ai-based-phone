@@ -549,6 +549,48 @@ img {
     font-weight: 500;
 }
 
+.ai-explain {
+    margin-top: 14px;
+    padding: 13px;
+    border: 1px solid #d7def8;
+    border-radius: 8px;
+    background: #f8faff;
+}
+
+.ai-explain h4 {
+    color: #1a237e;
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+}
+
+.ai-explain ul {
+    list-style: disc;
+    padding-left: 18px;
+    color: #444;
+    font-size: 0.82rem;
+    margin-bottom: 10px;
+}
+
+.score-breakdown {
+    display: grid;
+    gap: 6px;
+}
+
+.score-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 0.78rem;
+    color: #555;
+    border-top: 1px solid #e7ebfb;
+    padding-top: 6px;
+}
+
+.score-row strong {
+    color: #ff6f00;
+    white-space: nowrap;
+}
+
 .results-actions {
     text-align: center;
     margin-top: 30px;

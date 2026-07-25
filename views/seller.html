@@ -23,7 +23,10 @@
             <a href="/">🏠 Public Store</a>
         </nav>
         <div class="sidebar-bottom">
-            <a href="#" onclick="sellerLogout()">← Logout</a>
+            <span id="seller-nav-user" style="display:block;padding:8px 16px;font-size:0.8rem;color:#90caf9;font-weight:600;"></span>
+            <a href="/">🏠 Customer Store</a>
+            <a href="/admin" id="seller-nav-admin" style="display:none;">🔒 Admin Panel</a>
+            <a href="#" onclick="sellerLogout()">🚪 Logout</a>
         </div>
     </aside>
 
@@ -41,11 +44,17 @@
             <div class="stat-box s2"><div class="val" id="seller-stat-instock">—</div> <div class="lbl">In Stock</div></div>
             <div class="stat-box s4"><div class="val" id="seller-stat-outstock">—</div><div class="lbl">Out of Stock</div></div>
         </div>
+        <div class="stats" style="grid-template-columns:repeat(3,1fr);">
+            <div class="stat-box s3"><div class="val" id="seller-stat-ai-ready">0%</div><div class="lbl">AI-ready listings</div></div>
+            <div class="stat-box s5"><div class="val" id="seller-stat-top-usage">-</div><div class="lbl">Strongest category</div></div>
+            <div class="stat-box s2"><div class="val" id="seller-stat-missing">0</div><div class="lbl">Listings needing details</div></div>
+        </div>
 
         <!-- PANEL: Overview -->
         <div id="panel-overview" class="panel show">
             <div class="card">
                 <h3>📋 Welcome to Your Seller Dashboard</h3>
+                <div class="info-note"><strong>AI listing quality:</strong> Add complete RAM, storage, battery, camera, stock status, usage type, and description. Complete listings are easier for the recommendation engine to justify to customers.</div>
                 <table class="dtable">
                     <thead><tr><th>Action</th><th>Description</th></tr></thead>
                     <tbody>
