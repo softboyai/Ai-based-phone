@@ -3,128 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login — AI-Based Phone Recommendation | KT Phones</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <title>Login - KT Phones</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/style.css">
 </head>
-<body data-page="login" class="auth-page">
+<body data-page="login">
 
-    <!-- ── Split Layout ───────────────────────────────────── -->
-    <div class="auth-wrap">
-
-        <!-- LEFT: Branding Panel -->
-        <div class="auth-brand">
-            <div class="auth-brand-inner">
-                <!-- Logo -->
-                <div class="auth-logo">
-                    <div class="auth-logo-icon">📱</div>
-                    <div class="auth-logo-text">
-                        <span class="auth-logo-kt">KT</span>
-                        <span class="auth-logo-phones">Phones</span>
-                    </div>
-                </div>
-
-                <!-- Project Title -->
-                <h1 class="auth-project-title">AI-Based Mobile Phone Recommendation System</h1>
-                <p class="auth-project-sub">Helping customers find the perfect phone through intelligent AI-powered recommendations.</p>
-
-                <!-- Feature highlights -->
-                <ul class="auth-features">
-                    <li><span class="auth-feat-icon">🤖</span> Smart AI recommendation engine</li>
-                    <li><span class="auth-feat-icon">📊</span> Real-time phone catalog management</li>
-                    <li><span class="auth-feat-icon">👥</span> Multi-role: Admin, Seller, Customer</li>
-                    <li><span class="auth-feat-icon">🔒</span> Secure account management</li>
-                </ul>
-
-                <!-- Illustration -->
-                <div class="auth-illustration">
-                    <div class="phone-mockup">
-                        <div class="phone-screen">
-                            <div class="screen-header">🤖 AI Recommendation</div>
-                            <div class="screen-card">
-                                <div class="screen-card-img">📱</div>
-                                <div class="screen-card-info">
-                                    <div class="screen-card-name">Best Match</div>
-                                    <div class="screen-card-match">98% Match</div>
-                                </div>
-                            </div>
-                            <div class="screen-bar s1"></div>
-                            <div class="screen-bar s2"></div>
-                            <div class="screen-bar s3"></div>
-                        </div>
-                    </div>
-                    <div class="phone-glow"></div>
-                </div>
-            </div>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="logo">
+            <h1>KT <span>Phones</span></h1>
         </div>
+        <button class="menu-toggle">☰</button>
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/recommend">Get Recommendation</a>
+            <a href="/login" id="nav-login" class="active">Login</a>
+            <a href="/" id="nav-customer" style="display:none;">🏠 Customer</a>
+            <a href="/admin" id="nav-admin" style="display:none;">🔒 Admin Panel</a>
+            <a href="/seller" id="nav-seller" style="display:none;">🛒 My Dashboard</a>
+            <span id="nav-user-info" class="nav-user" style="display:none;"></span>
+            <a href="#" id="nav-logout" style="display:none;">Logout</a>
+        </div>
+    </nav>
 
-        <!-- RIGHT: Form Panel -->
-        <div class="auth-form-panel">
-            <!-- Minimal top nav for links -->
-            <div class="auth-topnav">
-                <a href="/">← Back to Home</a>
-                <div class="auth-topnav-links">
-                    <a href="/" id="nav-customer" style="display:none;">🏠 Customer</a>
-                    <a href="/admin" id="nav-admin" style="display:none;">🔒 Admin</a>
-                    <a href="/seller" id="nav-seller" style="display:none;">🛒 Dashboard</a>
-                    <span id="nav-user-info" class="nav-user" style="display:none;"></span>
-                    <a href="#" id="nav-logout" style="display:none;">Logout</a>
-                    <a href="/login" id="nav-login" style="display:none;"></a>
+    <!-- Main Content -->
+    <div class="container">
+        <div class="form-container">
+
+            <!-- Project banner -->
+            <div class="login-header">
+                <div class="login-header-bg">
+                    <div class="login-header-logo">📱</div>
+                    <div class="login-header-text">
+                        <h3 class="login-project-name">AI-Based Mobile Phone<br>Recommendation System</h3>
+                        <p class="login-project-sub">KT Phones Shop</p>
+                    </div>
                 </div>
             </div>
 
-            <div class="auth-form-inner">
-                <div class="auth-form-header">
-                    <h2>Welcome Back 👋</h2>
-                    <p>Sign in to your KT Phones account</p>
+            <h2>Welcome Back</h2>
+
+            <!-- Message Area -->
+            <div id="message" class="alert" style="display:none;"></div>
+
+            <!-- Login Form -->
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" placeholder="Enter your email" required>
                 </div>
 
-                <!-- Message -->
-                <div id="message" class="alert" style="display:none;"></div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                </div>
 
-                <!-- Login Form -->
-                <form id="login-form" class="auth-form">
-                    <div class="auth-field">
-                        <label for="email">Email Address</label>
-                        <div class="auth-input-wrap">
-                            <span class="auth-input-icon">✉️</span>
-                            <input type="email" id="email" name="email" placeholder="Enter your email" required autocomplete="email">
-                        </div>
-                    </div>
+                <button type="submit" class="btn btn-primary" style="width:100%;">Login</button>
+            </form>
 
-                    <div class="auth-field">
-                        <div class="auth-field-row">
-                            <label for="password">Password</label>
-                            <a href="/forgot-password" class="auth-field-link">Forgot password?</a>
-                        </div>
-                        <div class="auth-input-wrap">
-                            <span class="auth-input-icon">🔒</span>
-                            <input type="password" id="password" name="password" placeholder="Enter your password" required autocomplete="current-password">
-                            <button type="button" class="auth-eye" onclick="togglePwd('password', this)">👁️</button>
-                        </div>
-                    </div>
-
-                    <button type="submit" class="auth-submit-btn">Sign In</button>
-                </form>
-
-                <p class="auth-switch">
-                    Don't have an account? <a href="/register">Create one here</a>
-                </p>
-            </div>
-
-            <div class="auth-form-footer">
-                &copy; 2026 KT Phones &mdash; AI-Based Phone Recommendation System
-            </div>
+            <!-- Links -->
+            <p class="form-link">
+                <a href="/forgot-password" style="color:#c62828;">Forgot Password?</a>
+            </p>
+            <p class="form-link">
+                Don't have an account? <a href="/register">Register here</a>
+            </p>
         </div>
     </div>
 
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2026 KT Phones - AI-Based Mobile Phone Recommendation System</p>
+    </footer>
+
     <script src="/js/main.js"></script>
-    <script>
-        function togglePwd(id, btn) {
-            const inp = document.getElementById(id);
-            if (inp.type === 'password') { inp.type = 'text'; btn.textContent = '🙈'; }
-            else { inp.type = 'password'; btn.textContent = '👁️'; }
-        }
-    </script>
 </body>
 </html>

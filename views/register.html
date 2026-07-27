@@ -3,169 +3,107 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register — AI-Based Phone Recommendation | KT Phones</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <title>Register — KT Phones | AI-Based Phone Recommendation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/style.css">
 </head>
-<body data-page="register" class="auth-page">
+<body data-page="register">
 
-    <div class="auth-wrap">
-
-        <!-- LEFT: Branding Panel -->
-        <div class="auth-brand">
-            <div class="auth-brand-inner">
-                <div class="auth-logo">
-                    <div class="auth-logo-icon">📱</div>
-                    <div class="auth-logo-text">
-                        <span class="auth-logo-kt">KT</span>
-                        <span class="auth-logo-phones">Phones</span>
-                    </div>
-                </div>
-
-                <h1 class="auth-project-title">AI-Based Mobile Phone Recommendation System</h1>
-                <p class="auth-project-sub">Join KT Phones and get smart AI-powered phone recommendations tailored just for you.</p>
-
-                <ul class="auth-features">
-                    <li><span class="auth-feat-icon">🎯</span> Personalised phone recommendations</li>
-                    <li><span class="auth-feat-icon">🛒</span> Browse the full KT Phones catalog</li>
-                    <li><span class="auth-feat-icon">💡</span> AI explains why each phone fits you</li>
-                    <li><span class="auth-feat-icon">🔐</span> Secure and private account</li>
-                </ul>
-
-                <div class="auth-illustration">
-                    <div class="phone-mockup">
-                        <div class="phone-screen">
-                            <div class="screen-header">🎯 Find Your Phone</div>
-                            <div class="screen-card">
-                                <div class="screen-card-img">📱</div>
-                                <div class="screen-card-info">
-                                    <div class="screen-card-name">Top Pick</div>
-                                    <div class="screen-card-match">95% Match</div>
-                                </div>
-                            </div>
-                            <div class="screen-bar s1"></div>
-                            <div class="screen-bar s2"></div>
-                            <div class="screen-bar s3"></div>
-                        </div>
-                    </div>
-                    <div class="phone-glow"></div>
-                </div>
-            </div>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="logo"><h1>KT <span>Phones</span></h1></div>
+        <button class="menu-toggle">☰</button>
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/recommend">Get Recommendation</a>
+            <a href="/login" id="nav-login">Login</a>
+            <a href="/"      id="nav-customer" style="display:none;">🏠 Customer</a>
+            <a href="/admin" id="nav-admin"    style="display:none;">🔒 Admin Panel</a>
+            <a href="/seller"id="nav-seller"   style="display:none;">🛒 My Dashboard</a>
+            <span           id="nav-user-info" class="nav-user" style="display:none;"></span>
+            <a href="#"      id="nav-logout"   style="display:none;">Logout</a>
         </div>
+    </nav>
 
-        <!-- RIGHT: Form Panel -->
-        <div class="auth-form-panel">
-            <div class="auth-topnav">
-                <a href="/">← Back to Home</a>
-                <div class="auth-topnav-links">
-                    <a href="/" id="nav-customer" style="display:none;">🏠 Customer</a>
-                    <a href="/admin" id="nav-admin" style="display:none;">🔒 Admin</a>
-                    <a href="/seller" id="nav-seller" style="display:none;">🛒 Dashboard</a>
-                    <span id="nav-user-info" class="nav-user" style="display:none;"></span>
-                    <a href="#" id="nav-logout" style="display:none;">Logout</a>
-                    <a href="/login" id="nav-login" style="display:none;"></a>
+    <div class="container">
+        <div class="form-container form-container-wide">
+
+            <!-- Project banner -->
+            <div class="login-header">
+                <div class="login-header-bg">
+                    <div class="login-header-logo">📱</div>
+                    <div class="login-header-text">
+                        <h3 class="login-project-name">AI-Based Mobile Phone<br>Recommendation System</h3>
+                        <p class="login-project-sub">KT Phones Shop</p>
+                    </div>
                 </div>
             </div>
 
-            <div class="auth-form-inner auth-form-inner--scroll">
-                <div class="auth-form-header">
-                    <h2>Create Account ✨</h2>
-                    <p>Join KT Phones — it only takes a minute</p>
+            <h2>Create Account</h2>
+
+            <div id="message" class="alert" style="display:none;"></div>
+
+            <form id="register-form">
+                <div class="form-group">
+                    <label for="fullName">Full Name</label>
+                    <input type="text" id="fullName" name="fullName" placeholder="Enter your full name" required>
                 </div>
-
-                <div id="message" class="alert" style="display:none;"></div>
-
-                <form id="register-form" class="auth-form">
-                    <div class="auth-field">
-                        <label for="fullName">Full Name</label>
-                        <div class="auth-input-wrap">
-                            <span class="auth-input-icon">👤</span>
-                            <input type="text" id="fullName" name="fullName" placeholder="Enter your full name" required autocomplete="name">
-                        </div>
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" placeholder="Enter your email" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Create a strong password" required minlength="8">
+                    <small style="color:#666;font-size:0.75rem;display:block;margin-top:5px;">
+                        Min 8 chars: uppercase + lowercase + number + special character (!@#$%^&*)
+                    </small>
+                    <!-- Strength bar -->
+                    <div style="display:flex;gap:4px;margin-top:8px;">
+                        <div id="str-1" style="flex:1;height:4px;background:#e0e0e0;border-radius:2px;transition:background .3s;"></div>
+                        <div id="str-2" style="flex:1;height:4px;background:#e0e0e0;border-radius:2px;transition:background .3s;"></div>
+                        <div id="str-3" style="flex:1;height:4px;background:#e0e0e0;border-radius:2px;transition:background .3s;"></div>
+                        <div id="str-4" style="flex:1;height:4px;background:#e0e0e0;border-radius:2px;transition:background .3s;"></div>
                     </div>
+                    <small id="str-text" style="color:#666;font-size:0.72rem;"></small>
+                </div>
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm Password</label>
+                    <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm your password" required>
+                </div>
+                <div class="form-group">
+                    <label for="role">Register As</label>
+                    <select id="role" name="role" style="width:100%;padding:10px 12px;border:2px solid #e0e0e0;border-radius:8px;font-size:0.9rem;font-family:'Poppins',sans-serif;color:#333;background:#fff;">
+                        <option value="customer">Customer — Browse &amp; get AI recommendations</option>
+                        <option value="seller">Seller (KT Phones Staff) — Manage phone catalog</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width:100%;">Register</button>
+            </form>
 
-                    <div class="auth-field">
-                        <label for="email">Email Address</label>
-                        <div class="auth-input-wrap">
-                            <span class="auth-input-icon">✉️</span>
-                            <input type="email" id="email" name="email" placeholder="Enter your email" required autocomplete="email">
-                        </div>
-                    </div>
-
-                    <div class="auth-field">
-                        <label for="password">Password</label>
-                        <div class="auth-input-wrap">
-                            <span class="auth-input-icon">🔒</span>
-                            <input type="password" id="password" name="password" placeholder="Create a strong password" required minlength="8" autocomplete="new-password">
-                            <button type="button" class="auth-eye" onclick="togglePwd('password', this)">👁️</button>
-                        </div>
-                        <!-- Strength bar -->
-                        <div class="pwd-strength-bars">
-                            <div id="str-1" class="pwd-bar"></div>
-                            <div id="str-2" class="pwd-bar"></div>
-                            <div id="str-3" class="pwd-bar"></div>
-                            <div id="str-4" class="pwd-bar"></div>
-                        </div>
-                        <small id="str-text" class="pwd-hint">Min 8 chars: uppercase, lowercase, number &amp; special (!@#$%^&amp;*)</small>
-                    </div>
-
-                    <div class="auth-field">
-                        <label for="confirmPassword">Confirm Password</label>
-                        <div class="auth-input-wrap">
-                            <span class="auth-input-icon">🔒</span>
-                            <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Repeat your password" required autocomplete="new-password">
-                            <button type="button" class="auth-eye" onclick="togglePwd('confirmPassword', this)">👁️</button>
-                        </div>
-                    </div>
-
-                    <div class="auth-field">
-                        <label for="role">I am registering as</label>
-                        <div class="auth-input-wrap">
-                            <span class="auth-input-icon">🏷️</span>
-                            <select id="role" name="role">
-                                <option value="customer">Customer — Browse &amp; get AI recommendations</option>
-                                <option value="seller">Seller (KT Phones Staff) — Manage phone catalog</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <button type="submit" class="auth-submit-btn">Create Account</button>
-                </form>
-
-                <p class="auth-switch">
-                    Already have an account? <a href="/login">Sign in here</a>
-                </p>
-            </div>
-
-            <div class="auth-form-footer">
-                &copy; 2026 KT Phones &mdash; AI-Based Phone Recommendation System
-            </div>
+            <p class="form-link">Already have an account? <a href="/login">Login here</a></p>
         </div>
     </div>
 
+    <footer class="footer">
+        <p>&copy; 2026 KT Phones — AI-Based Mobile Phone Recommendation System</p>
+    </footer>
+
     <script src="/js/main.js"></script>
     <script>
-        function togglePwd(id, btn) {
-            const inp = document.getElementById(id);
-            if (inp.type === 'password') { inp.type = 'text'; btn.textContent = '🙈'; }
-            else { inp.type = 'password'; btn.textContent = '👁️'; }
-        }
-
         document.getElementById('password').addEventListener('input', function () {
-            const pwd = this.value;
-            let s = 0;
+            const pwd = this.value; let s = 0;
             if (pwd.length >= 8) s++;
             if (/[A-Z]/.test(pwd) && /[a-z]/.test(pwd)) s++;
             if (/[0-9]/.test(pwd)) s++;
             if (/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pwd)) s++;
-            const colors = ['#c62828', '#ff6f00', '#f9a825', '#2e7d32'];
-            const labels = ['Weak', 'Fair', 'Good', 'Strong'];
-            for (let i = 1; i <= 4; i++) {
-                document.getElementById('str-' + i).style.background = i <= s ? colors[s - 1] : '#e0e0e0';
-            }
+            const colors = ['#c62828','#ff6f00','#f9a825','#2e7d32'];
+            const labels = ['Weak','Fair','Good','Strong'];
+            for (let i = 1; i <= 4; i++)
+                document.getElementById('str-'+i).style.background = i <= s ? colors[s-1] : '#e0e0e0';
             const txt = document.getElementById('str-text');
-            txt.textContent = pwd.length > 0 ? 'Strength: ' + labels[s - 1] : 'Min 8 chars: uppercase, lowercase, number & special (!@#$%^&*)';
-            txt.style.color = s > 0 ? colors[s - 1] : '#888';
+            txt.textContent = pwd.length > 0 ? 'Strength: ' + labels[s-1] : '';
+            txt.style.color = s > 0 ? colors[s-1] : '#666';
         });
     </script>
 </body>
